@@ -10,11 +10,13 @@ Primary brand warna ungu-indigo mencerminkan modernitas, presisi data, dan rasa 
 
 ```css
 :root {
+  /* Core Brand Primary Alias */
+  --primary:     #6C5CE7; /* Core Primary brand alias */
   --primary-900: #2E1065; /* Deep purple (High contrast text, dark header) */
   --primary-800: #3730A3; /* Brand dark container */
   --primary-700: #4F46E5; /* Button hover & active dark states */
-  --primary-600: #5B4FE1; /* Primary button hover */
-  --primary-500: #6C5CE7; /* Core Primary CTA, Active Sidebar Nav, Focus Outline */
+  --primary-600: #5B4FE1; /* Primary button hover, metric highlight */
+  --primary-500: #6C5CE7; /* Core Primary CTA, Active Nav, Focus Outline */
   --primary-400: #818CF8; /* Light accent / chart auxiliary line */
   --primary-300: #A5B4FC; /* Chart gradient fill light */
   --primary-200: #C7D2FE; /* Subtle border highlight */
@@ -45,40 +47,46 @@ Primary brand warna ungu-indigo mencerminkan modernitas, presisi data, dan rasa 
 
 ---
 
-## 3. Semantic & Feedback Palette
+## 3. Semantic, Feedback & Chart Visualization Palette
 
 ```css
 :root {
-  /* Success: Order Berhasil, Pembayaran Lunas, Toko Aktif, Delta (+) */
-  --success:       #10B981;
-  --success-bg:    #ECFDF5;
-  --success-border:#A7F3D0;
-  --success-text:  #065F46;
+  /* Success: Growth (+), Order Confirmed, Active Accounts, Good Status */
+  --success:        #10B981;
+  --success-bg:     #ECFDF5;
+  --success-border: #A7F3D0;
+  --success-text:   #065F46;
 
-  /* Warning: Pending Approval, Mendekati Jatuh Tempo, Plafon Hampir Penuh */
-  --warning:       #F59E0B;
-  --warning-bg:    #FFFBEB;
-  --warning-border:#FDE68A;
-  --warning-text:  #92400E;
+  /* Warning: Pending SLA, Minor Anomaly, Approaching Thresholds */
+  --warning:        #F59E0B;
+  --warning-bg:     #FFFBEB;
+  --warning-border: #FDE68A;
+  --warning-text:   #92400E;
 
-  /* Danger: Gagal Bayar, Lewat Jatuh Tempo (Overdue), Blokir Order, Aksi Hapus */
-  --danger:        #EF4444;
-  --danger-bg:     #FEF2F2;
-  --danger-border: #FECACA;
-  --danger-text:   #991B1B;
+  /* Danger: Critical SLA Breach, Severe Drop, Lost GMV, Destructive Action */
+  --danger:         #EF4444;
+  --danger-bg:      #FEF2F2;
+  --danger-border:  #FECACA;
+  --danger-text:    #991B1B;
 
-  /* Info: Pengumuman Sistem, Status Netral */
-  --info:          #3B82F6;
-  --info-bg:       #EFF6FF;
-  --info-border:   #BFDBFE;
-  --info-text:     #1E40AF;
+  /* Info: Platform Announcement, Standard Scoped Dimension */
+  --info:           #3B82F6;
+  --info-bg:        #EFF6FF;
+  --info-border:    #BFDBFE;
+  --info-text:      #1E40AF;
 
-  /* Feature Accent: Voucher & Loyalty (Orange dari referensi chart) */
-  --accent-orange: #F97316;
+  /* Feature Accent & Promo Spike Beacon */
+  --accent-orange:    #F97316; /* Promo spike beacon, radar pulsating dot */
   --accent-orange-bg: #FFF7ED;
 
   /* Auxiliary Accent: Sky Blue */
-  --accent-blue:   #38BDF8;
+  --accent-blue:      #38BDF8;
+
+  /* Spline Chart Area Gradients */
+  --chart-gradient-top: rgba(108, 92, 231, 0.22);
+  --chart-gradient-mid: rgba(108, 92, 231, 0.06);
+  --chart-gradient-bot: rgba(108, 92, 231, 0.00);
+  --chart-glow-shadow:  rgba(108, 92, 231, 0.35);
 }
 ```
 
