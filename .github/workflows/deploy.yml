@@ -41,15 +41,6 @@ jobs:
         working-directory: './Prototype /Mitra1000s Dashboard'
         run: npm run build
 
-      - name: Ensure CNAME in Dist
-        working-directory: './Prototype /Mitra1000s Dashboard'
-        run: |
-          if [ -f public/CNAME ]; then
-            cp public/CNAME dist/CNAME
-          else
-            echo "mss-dashboard-report.buildwithbitforge.com" > dist/CNAME
-          fi
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
