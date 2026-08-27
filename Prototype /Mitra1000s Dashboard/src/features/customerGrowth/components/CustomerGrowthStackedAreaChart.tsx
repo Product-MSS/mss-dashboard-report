@@ -103,6 +103,8 @@ export const CustomerGrowthStackedAreaChart: React.FC<CustomerGrowthStackedAreaC
     )
   }
 
+  const isDaily = points.length > 0 && !isNaN(Number(points[0].date.slice(0, 2)))
+
   return (
     <div className="ct-chart-card" aria-label="Customer Growth Trend Chart">
       <div className="ct-chart-card__header">
@@ -187,12 +189,23 @@ export const CustomerGrowthStackedAreaChart: React.FC<CustomerGrowthStackedAreaC
           <path d={buildLinePath('yVer')} fill="none" stroke="#0284C7" strokeWidth="2.5" />
           <path d={buildLinePath('yAct')} fill="none" stroke="#16A34A" strokeWidth="2.5" />
 
-          {/* X Axis Labels */}
+          {/* Dynamic X Axis Labels: Daily vs Multi-Month vs Multi-Year (2 Years) */}
           {points.map((pt, idx) => {
-            const showLabel =
-              points.length <= 12 ||
-              idx % Math.ceil(points.length / 8) === 0 ||
-              idx === points.length - 1
+            let showLabel = true
+            if (isDaily) {
+              showLabel =
+                idx === 0 ||
+                idx === 4 ||
+                idx === 9 ||
+                idx === 14 ||
+                idx === 19 ||
+                idx === 24 ||
+                idx === points.length - 1
+            } else if (points.length > 14) {
+              // 2-Year range (e.g. 24 months): show every 3 months (Quarterly) + last month
+              showLabel = idx % 3 === 0 || idx === points.length - 1
+            }
+
             if (!showLabel) return null
             return (
               <text
@@ -250,7 +263,7 @@ export const CustomerGrowthStackedAreaChart: React.FC<CustomerGrowthStackedAreaC
           )}
         </svg>
 
-        {/* Floating Tooltip HUD */}
+        {/* Minimalist 1-Line Clean Tooltip HUD */}
         {activePoint && (
           <div
             className="ct-chart-tooltip"
@@ -260,31 +273,43 @@ export const CustomerGrowthStackedAreaChart: React.FC<CustomerGrowthStackedAreaC
                 activePoint.x > width * 0.65
                   ? 'translateX(-105%)'
                   : 'translateX(10px)',
+              minWidth: '190px',
+              padding: '8px 12px',
+              gap: '4px',
             }}
           >
-            <div className="ct-chart-tooltip__header">
-              <strong>{activePoint.fullDate || activePoint.date}</strong>
+            <div
+              className="ct-chart-tooltip__header"
+              style={{
+                fontSize: '12.5px',
+                paddingBottom: '4px',
+                marginBottom: '2px',
+                fontWeight: 700,
+              }}
+            >
+              <span>{activePoint.fullDate || activePoint.date}</span>
             </div>
             <div className="ct-chart-tooltip__row">
-              <span style={{ color: '#A78BFA' }}>● Registered Stores:</span>
+              <span style={{ color: '#A78BFA' }}>● Registered:</span>
               <strong>{activePoint.registered.toLocaleString()}</strong>
             </div>
             <div className="ct-chart-tooltip__row">
-              <span style={{ color: '#38BDF8' }}>● Verified (tokocodeidcpd):</span>
-              <strong>
-                {activePoint.verified.toLocaleString()} (
-                {((activePoint.verified / activePoint.registered) * 100).toFixed(1)}%)
-              </strong>
+              <span style={{ color: '#38BDF8' }}>● Verified:</span>
+              <strong>{activePoint.verified.toLocaleString()}</strong>
             </div>
             <div className="ct-chart-tooltip__row">
-              <span style={{ color: '#4ADE80' }}>● Activated (1st Order):</span>
-              <strong>
-                {activePoint.activated.toLocaleString()} (
-                {((activePoint.activated / activePoint.verified) * 100).toFixed(1)}%)
-              </strong>
+              <span style={{ color: '#4ADE80' }}>● Activated:</span>
+              <strong>{activePoint.activated.toLocaleString()}</strong>
             </div>
-            <div className="ct-chart-tooltip__row" style={{ borderTop: '1px dashed rgba(255,255,255,0.15)', paddingTop: '4px', marginTop: '2px' }}>
-              <span style={{ color: '#FCD34D' }}>💰 Cohort 1st Order GMV:</span>
+            <div
+              className="ct-chart-tooltip__row"
+              style={{
+                borderTop: '1px dashed rgba(255,255,255,0.15)',
+                paddingTop: '3px',
+                marginTop: '2px',
+              }}
+            >
+              <span style={{ color: '#FCD34D' }}>💰 GMV:</span>
               <strong style={{ color: '#34D399' }}>{formatGmv(activePoint.cohortGmv)}</strong>
             </div>
           </div>

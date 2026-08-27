@@ -128,7 +128,7 @@ export const CustomerGrowthKpiCards: React.FC<CustomerGrowthKpiCardsProps> = ({
           <div className="ct-kpi-column__header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Icons8 name="store" size={15} color="var(--text-muted)" />
-              <h3 className="ct-kpi-column__title">Verified & Mapped</h3>
+              <h3 className="ct-kpi-column__title">Verified</h3>
             </div>
           </div>
 
