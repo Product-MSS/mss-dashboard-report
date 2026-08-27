@@ -29,13 +29,10 @@ export const GrowthDiagnosticsAlerts: React.FC<GrowthDiagnosticsAlertsProps> = (
       {/* Clean Section Header */}
       <div className="ct-attention-section__header">
         <div className="ct-attention-section__title-group">
-          <h3
-            className="ct-attention-section__title"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <Icons8 name="alert-triangle" size={18} color="#DC2626" />
-            <span>WHAT NEEDS ATTENTION?</span>
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Icons8 name="alert-triangle" size={16} color="#DC2626" />
+            <h2 className="ct-widget-card__title">What Needs Attention?</h2>
+          </div>
           <span className="ct-attention-section__subtitle">
             Automated Growth & Onboarding Diagnostic Reporting Summary
           </span>

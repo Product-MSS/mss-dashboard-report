@@ -72,10 +72,7 @@ export const RegionalDiagnosticTable: React.FC<RegionalDiagnosticTableProps> = (
       {/* Header: Title and Search Box */}
       <div className="ct-widget-card__header">
         <div className="ct-widget-card__title-group">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Icons8 name="location" size={18} color="var(--primary-600)" />
-            <h3 className="ct-widget-card__title">Regional Performance & Verification Diagnostics</h3>
-          </div>
+          <h2 className="ct-widget-card__title">Regional Performance & Verification Diagnostics</h2>
         </div>
 
         <div className="ct-table-search-box">

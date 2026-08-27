@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import type { OnboardingFunnelData } from '../models/types'
-import { Badge } from '@/shared/components/Badge'
 
 interface OnboardingFunnelWidgetProps {
   data: OnboardingFunnelData | null
@@ -15,13 +14,15 @@ export const OnboardingFunnelWidget: React.FC<OnboardingFunnelWidgetProps> = ({
 
   if (isLoading || !data) {
     return (
-      <div className="ct-widget-card" aria-busy="true">
-        <div className="ct-widget-card__header">
-          <div className="ct-widget-card__title-group">
-            <h3 className="ct-widget-card__title">Onboarding Funnel</h3>
+      <div className="ct-chart-card" aria-busy="true">
+        <div className="ct-chart-card__header">
+          <div className="ct-chart-card__title-group">
+            <h2 className="ct-chart-card__title">Onboarding Funnel</h2>
           </div>
         </div>
-        <div className="ct-skeleton-chart" style={{ height: '280px' }} />
+        <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="ct-skeleton-chart" style={{ width: '90%', height: '80%', background: '#F1F5F9', borderRadius: '8px' }} />
+        </div>
       </div>
     )
   }
@@ -30,14 +31,14 @@ export const OnboardingFunnelWidget: React.FC<OnboardingFunnelWidgetProps> = ({
   const verTotal = data.verifiedTotal || 2120
   const actTotal = data.activatedTotal || 726
 
-  const verRate = ((verTotal / regTotal) * 100).toFixed(1)
+  const verRateOfReg = ((verTotal / regTotal) * 100).toFixed(1)
   const actRateOfReg = ((actTotal / regTotal) * 100).toFixed(1)
 
   const formatK = (val: number) => {
     if (val >= 1000) {
       return `${(val / 1000).toFixed(2)}K`
     }
-    return val.toString()
+    return val.toLocaleString()
   }
 
   const stages = [
@@ -48,14 +49,16 @@ export const OnboardingFunnelWidget: React.FC<OnboardingFunnelWidgetProps> = ({
       formattedCount: formatK(regTotal),
       pct: 100,
       pctDisplay: '100%',
+      subtext: 'New Signups',
     },
     {
       id: 2,
       name: 'Verified',
       count: verTotal,
       formattedCount: formatK(verTotal),
-      pct: Number(verRate),
-      pctDisplay: `${verRate}%`,
+      pct: Number(verRateOfReg),
+      pctDisplay: `${verRateOfReg}%`,
+      subtext: 'tokocodeidcpd',
     },
     {
       id: 3,
@@ -64,24 +67,22 @@ export const OnboardingFunnelWidget: React.FC<OnboardingFunnelWidgetProps> = ({
       formattedCount: formatK(actTotal),
       pct: Number(actRateOfReg),
       pctDisplay: `${actRateOfReg}%`,
+      subtext: '1st Order Done',
     },
   ]
 
   const yTicks = [100, 75, 50, 25, 0]
 
   return (
-    <div className="ct-widget-card" aria-label="Onboarding Funnel Widget">
-      {/* Header */}
-      <div className="ct-widget-card__header">
-        <div className="ct-widget-card__title-group">
-          <h3 className="ct-widget-card__title">Onboarding Funnel</h3>
+    <div className="ct-chart-card" aria-label="Onboarding Funnel Widget">
+      {/* Header matching Customer Growth Trend */}
+      <div className="ct-chart-card__header">
+        <div className="ct-chart-card__title-group">
+          <h2 className="ct-chart-card__title">Onboarding Funnel</h2>
         </div>
-        <Badge variant="primary" size="md">
-          3-Stage Funnel
-        </Badge>
       </div>
 
-      {/* Vertical Column Funnel Chart */}
+      {/* Vertical Continuous Touching Blocks Funnel */}
       <div className="ct-col-funnel-container">
         {/* Y-Axis Grid & Labels */}
         <div className="ct-col-funnel-yaxis">
@@ -105,17 +106,18 @@ export const OnboardingFunnelWidget: React.FC<OnboardingFunnelWidgetProps> = ({
             ))}
           </div>
 
-          {/* 3 Columns */}
+          {/* 3 Continuous Touching Columns */}
           <div className="ct-col-funnel-columns">
             {stages.map((st, idx) => (
               <div
                 key={st.id}
-                className={`ct-col-funnel-column-wrapper ${hoveredIndex === idx ? 'ct-col-funnel-column--hovered' : ''
-                  }`}
+                className={`ct-col-funnel-column-wrapper ${
+                  hoveredIndex === idx ? 'ct-col-funnel-column--hovered' : ''
+                }`}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                {/* Full Height Track */}
+                {/* Wide Track with White Divider */}
                 <div className="ct-col-funnel-track">
                   {/* Floating Badge Pill positioned at top of fill */}
                   <div
@@ -128,7 +130,7 @@ export const OnboardingFunnelWidget: React.FC<OnboardingFunnelWidgetProps> = ({
                     <span className="ct-col-funnel-badge-val">{st.formattedCount}</span>
                   </div>
 
-                  {/* Solid Brand Violet Bar Fill */}
+                  {/* Gradient Bar Fill */}
                   <div
                     className="ct-col-funnel-fill"
                     style={{ height: `${st.pct}%` }}
