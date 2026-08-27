@@ -98,7 +98,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
                         <Icons8
                           name={item.icon}
                           size={18}
-                          color={isActive ? '#7C3AED' : '#64748B'}
+                          color={isActive ? '#FFFFFF' : '#64748B'}
                         />
                       </span>
                       {!sidebarCollapsed && (
