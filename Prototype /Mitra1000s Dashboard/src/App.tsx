@@ -3,6 +3,7 @@ import './index.css';
 import './App.css';
 import { DashboardShell } from './shared/components/DashboardShell';
 import { ProductOverviewPage } from './features/productOverview';
+import { CustomerGrowthPage } from './features/customerGrowth';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<string>('overview');
@@ -64,23 +65,7 @@ export function App() {
         </div>
       )}
 
-      {activeTab === 'growth' && (
-        <div className="db-tab-placeholder">
-          <span className="db-tab-placeholder__icon">👥</span>
-          <h2 className="db-tab-placeholder__title">Growth & Store Acquisition Dashboard</h2>
-          <p className="db-tab-placeholder__desc">
-            Track new store registrations, KYC/NIK approvals across Area CPD & Area BNN, sales force
-            productivity, and channel attribution.
-          </p>
-          <button
-            type="button"
-            className="ct-btn ct-btn--secondary"
-            onClick={() => setActiveTab('overview')}
-          >
-            ← Back to Control Tower
-          </button>
-        </div>
-      )}
+      {activeTab === 'growth' && <CustomerGrowthPage />}
 
       {activeTab === 'activation' && (
         <div className="db-tab-placeholder">
