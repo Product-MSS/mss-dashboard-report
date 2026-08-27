@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM Dashboard Requirements — B2B E-Commerce</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #0F172A; --card: #1E293B; --border: #334155;
+            --cyan: #06B6D4; --teal: #0D9488; --green: #10B981;
+            --amber: #F59E0B; --orange: #F97316; --purple: #8B5CF6;
+            --red: #EF4444; --text: #F1F5F9; --muted: #94A3B8; --light: #CBD5E1;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--navy); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        .slideshow { flex: 1; position: relative; overflow: hidden; }
+        .slide { position: absolute; inset: 0; padding: 48px 64px; display: none; flex-direction: column; opacity: 0; transition: opacity 0.4s ease; }
+        .slide.active { display: flex; opacity: 1; }
+        .nav-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 64px; border-top: 1px solid var(--border); background: #0B1120; flex-shrink: 0; }
+        .nav-dots { display: flex; gap: 8px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; transition: all 0.2s; }
+        .dot.active { background: var(--cyan); width: 24px; border-radius: 4px; }
+        .nav-buttons { display: flex; gap: 12px; }
+        .btn-nav { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-nav:hover { border-color: var(--cyan); color: var(--cyan); }
+        .btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+        .slide-counter { font-size: 13px; color: var(--muted); }
+        .slide-cover { align-items: center; justify-content: center; text-align: center; background: radial-gradient(ellipse at 50% 40%, #0e2a3a 0%, var(--navy) 70%); }
+        .cover-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3); color: var(--cyan); padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 28px; }
+        .cover-title { font-size: 52px; font-weight: 800; line-height: 1.1; background: linear-gradient(135deg, #FFFFFF 0%, var(--cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 20px; }
+        .cover-sub { font-size: 18px; color: var(--muted); font-weight: 400; margin-bottom: 48px; max-width: 520px; }
+        .cover-meta { display: flex; gap: 32px; justify-content: center; }
+        .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+        .meta-value { font-size: 14px; font-weight: 600; color: var(--light); }
+        .chain-badge { display: flex; align-items: center; gap: 10px; margin: 32px auto 0; width: fit-content; }
+        .chain-node { background: var(--card); border: 1px solid var(--border); padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        .chain-arrow { color: var(--cyan); font-size: 18px; }
+        .slide-overview .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); font-weight: 600; margin-bottom: 8px; }
+        .slide-overview h2 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+        .slide-overview .slide-desc { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        .dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 18px; }
+        .dash-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 14px; }
+        .dash-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+        .dash-audience { font-size: 11px; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
+        .dash-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+        .chip { font-size: 10px; padding: 3px 8px; border-radius: 99px; font-weight: 500; background: rgba(255,255,255,0.06); color: var(--light); border: 1px solid var(--border); }
+        .slide-dashboard .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 6px; }
+        .slide-dashboard h2 { font-size: 30px; font-weight: 800; margin-bottom: 4px; }
+        .slide-dashboard .slide-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+        .dashboard-layout { display: grid; grid-template-columns: 1fr 370px; gap: 24px; flex: 1; min-height: 0; }
+        .mockup-panel { background: #111827; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .mockup-panel img { width: 100%; height: 100%; object-fit: cover; }
+        .data-panel { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+        .data-section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+        .data-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .data-section-title span { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+        .data-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+        .data-list li { font-size: 12.5px; color: var(--light); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+        .data-list li::before { content: '→'; font-size: 11px; color: var(--cyan); flex-shrink: 0; margin-top: 1px; }
+        .cadence-tag { display: inline-block; font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 500; padding: 1px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
+        .tag-daily { background: rgba(239,68,68,0.15); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); }
+        .tag-weekly { background: rgba(245,158,11,0.15); color: #FCD34D; border: 1px solid rgba(245,158,11,0.3); }
+        .tag-monthly { background: rgba(16,185,129,0.15); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.3); }
+        .slide-closing { align-items: center; justify-content: center; text-align: center; }
+        .slide-closing h2 { font-size: 40px; font-weight: 800; margin-bottom: 16px; background: linear-gradient(135deg, #FFFFFF 0%, var(--cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .slide-closing p { color: var(--muted); font-size: 15px; max-width: 480px; line-height: 1.7; margin-bottom: 36px; }
+        .next-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 680px; width: 100%; }
+        .next-step-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: left; }
+        .step-num { font-size: 11px; font-weight: 700; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+        .step-text { font-size: 13px; font-weight: 600; color: var(--light); line-height: 1.5; }
+        .key-hint { font-size: 11px; color: var(--muted); }
+        .key-hint kbd { background: var(--card); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+        .metric-name { font-size: 12px; font-weight: 700; color: var(--light); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
+        .metric-desc { font-size: 10.5px; color: var(--muted); line-height: 1.5; }
+    </style>
+</head>
+<body>
+<div class="slideshow">
+
+    <!-- SLIDE 1: COVER -->
+    <div class="slide slide-cover active" id="slide-1">
+        <div class="cover-tag">📊 Data Request — Tim Product Manager</div>
+        <div class="cover-title">PM Dashboard<br>Requirements</div>
+        <div class="cover-sub">Kebutuhan data dan tampilan dashboard Power BI untuk mendukung pengambilan keputusan produk berbasis data</div>
+        <div class="cover-meta">
+            <div class="meta-item"><div class="meta-label">Platform</div><div class="meta-value">B2B E-Commerce</div></div>
+            <div class="meta-item"><div class="meta-label">Tools</div><div class="meta-value">Power BI</div></div>
+            <div class="meta-item"><div class="meta-label">Tanggal</div><div class="meta-value">Agustus 2026</div></div>
+            <div class="meta-item"><div class="meta-label">Dashboard</div><div class="meta-value">5 Tab View</div></div>
+        </div>
+        <div class="chain-badge">
+            <div class="chain-node">Supplier</div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-node">Distributor</div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-node">Retailer</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: BACKGROUND -->
+    <div class="slide" id="slide-2">
+        <div class="section-title" style="font-size:13px; text-transform:uppercase; letter-spacing:0.1em; color:var(--cyan); font-weight:600; margin-bottom:8px;">Background</div>
+        <h2 style="font-size:34px; font-weight:800; margin-bottom:20px;">Kenapa Kita Butuh Dashboard Ini?</h2>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; flex:1; min-height:0;">
+
+            <!-- LEFT: Latar Belakang + Scope -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px;">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--cyan);display:inline-block;"></span> Latar Belakang</div>
+                    <p style="font-size:13px; color:var(--light); line-height:1.7; margin-bottom:14px;">Sistem kami menghubungkan tiga layer bisnis dalam ekosistem B2B material bangunan:</p>
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+                        <div style="background:#1E293B; border:1px solid var(--border); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600;">Supplier</div>
+                        <div style="color:var(--cyan); font-size:18px;">→</div>
+                        <div style="background:#1E293B; border:1px solid var(--border); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600;">Distributor</div>
+                        <div style="color:var(--cyan); font-size:18px;">→</div>
+                        <div style="background:#1E293B; border:1px solid var(--border); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600;">Retailer</div>
+                    </div>
+                    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:8px; padding:12px 14px; font-size:12.5px; color:#FCA5A5; line-height:1.6;">
+                        ⚠️ Saat ini tim PM <strong>belum memiliki visibility</strong> yang memadai atas performa produk secara kuantitatif. Keputusan roadmap masih banyak bergantung pada asumsi dan feedback kualitatif.
+                    </div>
+                </div>
+
+                <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px;">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span> Scope & Batasan</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div style="display:flex; gap:10px; font-size:12.5px;">
+                            <div style="color:var(--muted); width:130px; flex-shrink:0;">Periode Data</div>
+                            <div style="color:var(--light);">Go-live sistem → real-time (ongoing)</div>
+                        </div>
+                        <div style="display:flex; gap:10px; font-size:12.5px;">
+                            <div style="color:var(--muted); width:130px; flex-shrink:0;">Granularitas</div>
+                            <div style="color:var(--light);">Event-level + agregasi harian/mingguan</div>
+                        </div>
+                        <div style="display:flex; gap:10px; font-size:12.5px;">
+                            <div style="color:var(--muted); width:130px; flex-shrink:0;">Visualisasi</div>
+                            <div style="color:var(--light);">Power BI — diakses mandiri oleh PM</div>
+                        </div>
+                        <div style="display:flex; gap:10px; font-size:12.5px;">
+                            <div style="color:var(--muted); width:130px; flex-shrink:0;">Tidak Termasuk</div>
+                            <div style="color:#FCD34D;">Data fraud & integrity (request terpisah)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: 5 Pertanyaan Bisnis + Penggunaan -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; flex:1;">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span> 5 Pertanyaan Bisnis yang Harus Terjawab</div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <div style="display:flex; gap:10px; align-items:flex-start;">
+                            <div style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">1</div>
+                            <div style="font-size:12.5px; color:var(--light); line-height:1.5;"><strong style="color:var(--text);">Apakah produk kita tumbuh?</strong> — Berapa user baru yang join dan aktif bertransaksi?</div>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:flex-start;">
+                            <div style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">2</div>
+                            <div style="font-size:12.5px; color:var(--light); line-height:1.5;"><strong style="color:var(--text);">Apakah user kita loyal?</strong> — Berapa % yang kembali order bulan berikutnya?</div>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:flex-start;">
+                            <div style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">3</div>
+                            <div style="font-size:12.5px; color:var(--light); line-height:1.5;"><strong style="color:var(--text);">Di mana user drop-off?</strong> — Step mana di checkout atau onboarding yang paling ditinggalkan?</div>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:flex-start;">
+                            <div style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">4</div>
+                            <div style="font-size:12.5px; color:var(--light); line-height:1.5;"><strong style="color:var(--text);">Apakah fitur yang dibangun dipakai?</strong> — Seberapa besar adoption voucher dan loyalty?</div>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:flex-start;">
+                            <div style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">5</div>
+                            <div style="font-size:12.5px; color:var(--light); line-height:1.5;"><strong style="color:var(--text);">Seberapa sehat revenue kita?</strong> — Bagaimana tren GMV, AOV, dan payment success rate?</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span> Data Ini Akan Digunakan Untuk</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--light);">📅 Review mingguan & bulanan product health</div>
+                        <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--light);">🗺️ Pengambilan keputusan roadmap sprint</div>
+                        <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--light);">🧪 Evaluasi eksperimen & A/B test</div>
+                        <div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--light);">📊 Laporan performa ke stakeholder</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: OVERVIEW -->
+    <div class="slide slide-overview" id="slide-3">
+        <div class="section-title">Overview</div>
+        <h2>5 Dashboard yang Dibutuhkan</h2>
+        <div class="slide-desc">Masing-masing dashboard dirancang untuk menjawab pertanyaan bisnis yang berbeda dari sudut pandang Product Manager.</div>
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="dash-icon" style="background:rgba(6,182,212,0.1);">📈</div>
+                <div class="dash-title">Executive</div>
+                <div class="dash-audience">👤 PM Lead / CPO</div>
+                <div class="dash-chips"><span class="chip">GMV ⭐</span><span class="chip">MAB</span><span class="chip">AOV</span><span class="chip">Order Funnel</span><span class="chip">Payment Mix</span></div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dash-icon" style="background:rgba(16,185,129,0.1);">🚀</div>
+                <div class="dash-title">Growth</div>
+                <div class="dash-audience">👤 PM Onboarding/Growth</div>
+                <div class="dash-chips"><span class="chip">New Users</span><span class="chip">Onboarding Funnel</span><span class="chip">NIK Rate</span><span class="chip">Akuisisi Source</span></div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dash-icon" style="background:rgba(139,92,246,0.1);">🔄</div>
+                <div class="dash-title">Retention</div>
+                <div class="dash-audience">👤 PM Core Product</div>
+                <div class="dash-chips"><span class="chip">Churn Rate</span><span class="chip">Cohort</span><span class="chip">MAB/WAB</span><span class="chip">Order Freq</span></div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dash-icon" style="background:rgba(245,158,11,0.1);">🎁</div>
+                <div class="dash-title">Loyalty</div>
+                <div class="dash-audience">👤 PM Loyalty</div>
+                <div class="dash-chips"><span class="chip">Voucher Lifecycle</span><span class="chip">Tier Dist.</span><span class="chip">DAU/WAU</span><span class="chip">Feature Adoption</span></div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dash-icon" style="background:rgba(139,92,246,0.1);">🏥</div>
+                <div class="dash-title">Product Health</div>
+                <div class="dash-audience">👤 Semua PM</div>
+                <div class="dash-chips"><span class="chip">Error Rate</span><span class="chip">Success Rate</span><span class="chip">Zero-Result</span><span class="chip">Freshness</span></div>
+            </div>
+        </div>
+        <div style="margin-top:24px; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.2); border-radius:8px; padding:14px 18px; display:flex; align-items:center; gap:12px;">
+            <span style="font-size:20px;">💡</span>
+            <div>
+                <div style="font-size:13px; font-weight:600; color:var(--cyan); margin-bottom:2px;">North Star Metric</div>
+                <div style="font-size:12.5px; color:var(--muted);">Satu angka yang kalau naik, berarti produk berhasil: <strong style="color:var(--text);">GMV (Gross Merchandise Value)</strong> — total nilai transaksi yang berhasil dalam periode tertentu.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: EXECUTIVE -->
+    
+    <!-- SLIDE 4: FILTER BEHAVIOR RULES -->
+    <div class="slide" id="slide-4">
+        <div style="font-size:13px; text-transform:uppercase; letter-spacing:0.1em; color:var(--cyan); font-weight:600; margin-bottom:8px;">Spesifikasi Teknis</div>
+        <h2 style="font-size:32px; font-weight:800; margin-bottom:6px;">Aturan Filter & Interaction</h2>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:24px;">Panduan untuk tim Power BI Developer tentang bagaimana setiap visual merespons date slicer.</div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; flex:1; min-height:0;">
+
+            <!-- LEFT COLUMN -->
+            <div style="display:flex; flex-direction:column; gap:14px;">
+
+                <!-- Rule 1: KPI Cards -->
+                <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <div style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; border:1px solid rgba(6,182,212,0.3);">Rule 1</div>
+                        <div style="font-size:13px; font-weight:700;">KPI Cards — Ikut Date Filter</div>
+                    </div>
+                    <div style="font-size:12px; color:var(--light); line-height:1.6; margin-bottom:10px;">Semua KPI card menampilkan nilai agregat sesuai periode yang dipilih di slicer.</div>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter Daily</span>
+                            <span style="color:var(--light);">GMV = total transaksi hari itu</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter Monthly</span>
+                            <span style="color:var(--light);">GMV = total transaksi bulan itu</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter Quarterly</span>
+                            <span style="color:var(--light);">GMV = total transaksi kuartal itu</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rule 2: Delta % -->
+                <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <div style="background:rgba(16,185,129,0.15); color:var(--green); font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; border:1px solid rgba(16,185,129,0.3);">Rule 2</div>
+                        <div style="font-size:13px; font-weight:700;">Delta % — Period-over-Period (PoP)</div>
+                    </div>
+                    <div style="font-size:12px; color:var(--light); line-height:1.6; margin-bottom:10px;">Perbandingan selalu menggunakan <strong>periode ekuivalen sebelumnya</strong> — bukan fixed bulan lalu atau tahun lalu.</div>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter: Juni 2026</span>
+                            <span style="color:var(--green);">vs Mei 2026</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter: Q2 2026</span>
+                            <span style="color:var(--green);">vs Q1 2026</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter: 21 Aug 2026</span>
+                            <span style="color:var(--green);">vs 20 Aug 2026</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; font-size:11px; color:var(--muted);">📐 DAX: gunakan <code style="background:#0F172A; padding:2px 5px; border-radius:4px; color:var(--cyan);">DATEADD()</code> atau <code style="background:#0F172A; padding:2px 5px; border-radius:4px; color:var(--cyan);">PARALLELPERIOD()</code></div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div style="display:flex; flex-direction:column; gap:14px;">
+
+                <!-- Rule 3: Charts -->
+                <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <div style="background:rgba(139,92,246,0.15); color:var(--purple); font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; border:1px solid rgba(139,92,246,0.3);">Rule 3</div>
+                        <div style="font-size:13px; font-weight:700;">Charts — Ikut Filter (Granularitas Adaptif)</div>
+                    </div>
+                    <div style="font-size:12px; color:var(--light); line-height:1.6; margin-bottom:10px;">Semua chart (line, bar, funnel) merespons slicer. Sumbu X menyesuaikan granularitas otomatis.</div>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter Daily</span>
+                            <span style="color:var(--light);">X-axis: per jam atau per hari</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter Weekly</span>
+                            <span style="color:var(--light);">X-axis: per hari dalam seminggu</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:6px; padding:7px 10px; font-size:11.5px;">
+                            <span style="color:var(--muted);">Filter Monthly</span>
+                            <span style="color:var(--light);">X-axis: per minggu dalam sebulan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rule 4: Exceptions -->
+                <div style="background:var(--card); border:1px solid rgba(245,158,11,0.4); border-radius:12px; padding:18px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <div style="background:rgba(245,158,11,0.15); color:var(--amber); font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; border:1px solid rgba(245,158,11,0.3);">Rule 4 ⚠️</div>
+                        <div style="font-size:13px; font-weight:700;">Pengecualian — Fixed Monthly Metrics</div>
+                    </div>
+                    <div style="font-size:12px; color:var(--light); line-height:1.6; margin-bottom:12px;">Metrics berikut <strong style="color:var(--amber);">selalu ditampilkan dalam agregasi Monthly</strong> meskipun PM memilih filter Daily atau Weekly, karena secara statistik tidak meaningful dalam granularitas lebih kecil:</div>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div style="display:flex; align-items:center; gap:8px; background:rgba(245,158,11,0.08); border-radius:6px; padding:8px 10px;">
+                            <span style="color:var(--amber); font-size:14px;">📌</span>
+                            <div>
+                                <div style="font-size:12px; font-weight:600; color:var(--light);">M1 Retention Rate</div>
+                                <div style="font-size:10.5px; color:var(--muted);">Selalu menghitung cohort bulan vs bulan</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; background:rgba(245,158,11,0.08); border-radius:6px; padding:8px 10px;">
+                            <span style="color:var(--amber); font-size:14px;">📌</span>
+                            <div>
+                                <div style="font-size:12px; font-weight:600; color:var(--light);">Cohort Retention Heatmap</div>
+                                <div style="font-size:10.5px; color:var(--muted);">Baris & kolom selalu per bulan (M0, M1, M2...)</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; background:rgba(245,158,11,0.08); border-radius:6px; padding:8px 10px;">
+                            <span style="color:var(--amber); font-size:14px;">📌</span>
+                            <div>
+                                <div style="font-size:12px; font-weight:600; color:var(--light);">Churn Rate (60d)</div>
+                                <div style="font-size:10.5px; color:var(--muted);">Window 60 hari tetap, tidak diperkecil oleh filter</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; font-size:11px; color:var(--muted);">📐 DAX: gunakan <code style="background:#0F172A; padding:2px 5px; border-radius:4px; color:var(--cyan);">CALCULATE( ..., REMOVEFILTERS(DateTable) )</code> untuk metric ini</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+<div class="slide slide-dashboard" id="slide-5">
+        <div class="section-label" style="color:var(--cyan);">Tab 1 — Executive</div>
+        <h2>Executive Dashboard</h2>
+        <div class="slide-desc">Pandangan tingkat tinggi atas performa keseluruhan produk. Dikonsumsi saat weekly/monthly review bersama leadership.</div>
+        <div class="dashboard-layout">
+            <div class="mockup-panel"><img src="dashboard_executive.jpg" alt="Executive Dashboard"></div>
+            <div class="data-panel">
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--cyan)"></span> KPI Cards</div>
+                    <ul class="data-list">
+                        <li><div><div class="metric-name">GMV ⭐ <span class="cadence-tag tag-daily">Daily</span></div><div class="metric-desc">Total nilai transaksi yang berhasil diselesaikan. North Star Metric — jika naik, bisnis tumbuh.</div></div></li>
+                        <li><div><div class="metric-name">Monthly Active Buyers (MAB) <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">Jumlah buyer unik yang melakukan ≥1 order dalam sebulan. Mengukur ukuran basis aktif platform.</div></div></li>
+                        <li><div><div class="metric-name">Average Order Value (AOV) <span class="cadence-tag tag-weekly">Weekly</span></div><div class="metric-desc">Rata-rata nilai per order. Naik berarti buyer membeli lebih banyak per transaksi.</div></div></li>
+                        <li><div><div class="metric-name">D-30 Activation Rate <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">% user baru yang melakukan order pertama dalam 30 hari sejak mendaftar.</div></div></li>
+                        <li><div><div class="metric-name">M1 Retention Rate <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">% buyer bulan lalu yang kembali melakukan order di bulan ini.</div></div></li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--teal)"></span> Charts & Visualisasi</div>
+                    <ul class="data-list">
+                        <li>Tren GMV harian — line chart 30 hari</li>
+                        <li>Order Funnel — full journey: Product Viewed → Added to Cart → Checkout Started → Order Submitted → Order Confirmed → Payment Completed</li>
+                        <li>GMV by Region — bar chart per kota/wilayah</li>
+                        <li>Payment Method Mix — donut chart distribusi metode bayar</li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--amber)"></span> Filter</div>
+                    <ul class="data-list">
+                        <li>Date range: Daily / Weekly / Monthly / Quarterly</li>
+                        <li>Drill-through: GMV → per Distributor atau per Region</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: GROWTH -->
+    <div class="slide slide-dashboard" id="slide-6">
+        <div class="section-label" style="color:var(--green);">Tab 2 — Growth</div>
+        <h2>Growth Dashboard</h2>
+        <div class="slide-desc">Memantau akuisisi user baru, efektivitas onboarding, dan performa tim Sales Force di lapangan.</div>
+        <div class="dashboard-layout">
+            <div class="mockup-panel"><img src="dashboard_growth.jpg" alt="Growth Dashboard"></div>
+            <div class="data-panel">
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--green)"></span> KPI Cards</div>
+                    <ul class="data-list">
+                        <li><div><div class="metric-name">New Registered Users <span class="cadence-tag tag-weekly">Weekly</span></div><div class="metric-desc">Jumlah akun baru yang mendaftar. Mengukur volume top-of-funnel akuisisi.</div></div></li>
+                        <li><div><div class="metric-name">New Verified Accounts <span class="cadence-tag tag-weekly">Weekly</span></div><div class="metric-desc">Jumlah yang lolos verifikasi KYC/NIK — akun yang sudah siap bertransaksi.</div></div></li>
+                        <li><div><div class="metric-name">Registration-to-Approval Rate <span class="cadence-tag tag-weekly">Weekly</span></div><div class="metric-desc">% registrasi yang berhasil disetujui. Mengukur efektivitas proses onboarding & KYC.</div></div></li>
+                        <li><div><div class="metric-name">Time-to-Active <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">Rata-rata hari dari daftar hingga order pertama. Makin pendek makin baik — user cepat menghasilkan nilai.</div></div></li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--teal)"></span> Charts & Visualisasi</div>
+                    <ul class="data-list">
+                        <li>Onboarding Funnel — step by step Register hingga First Order D-7</li>
+                        <li>Acquisition Source — donut: Sales Force / Self Register / Referral</li>
+                        <li>New Verified Accounts — weekly trend line chart (8 minggu)</li>
+                        <li>NIK Verification Failure Reasons — bar chart top alasan gagal</li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--amber)"></span> Breakdown</div>
+                    <ul class="data-list">
+                        <li>Per role: Retailer vs Distributor</li>
+                        <li>Per region / wilayah</li>
+                        <li>Per sales force ID</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: RETENTION -->
+    <div class="slide slide-dashboard" id="slide-7">
+        <div class="section-label" style="color:var(--purple);">Tab 3 — Retention</div>
+        <h2>Retention Dashboard</h2>
+        <div class="slide-desc">Mengukur loyalitas buyer — seberapa sering mereka kembali dan di mana mereka berhenti berinteraksi dengan platform.</div>
+        <div class="dashboard-layout">
+            <div class="mockup-panel"><img src="dashboard_retention.jpg" alt="Retention Dashboard"></div>
+            <div class="data-panel">
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--purple)"></span> KPI Cards</div>
+                    <ul class="data-list">
+                        <li><div><div class="metric-name">Monthly Active Buyers (MAB) <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">Jumlah buyer unik yang order dalam sebulan. Ukuran populasi yang aktif bertransaksi di platform.</div></div></li>
+                        <li><div><div class="metric-name">M1 Retention Rate <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">% buyer bulan lalu yang kembali order bulan ini. Indikator loyalitas utama platform B2B.</div></div></li>
+                        <li><div><div class="metric-name">Churn Rate (60 hari) <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">% buyer yang tidak melakukan order sama sekali dalam 60 hari terakhir. Target: serendah mungkin.</div></div></li>
+                        <li><div><div class="metric-name">Order Frequency <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">Rata-rata jumlah order per buyer per bulan. Naik = buyer makin terbiasa & bergantung pada platform.</div></div></li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--teal)"></span> Charts & Visualisasi</div>
+                    <ul class="data-list">
+                        <li>Cohort Retention Heatmap — per cohort bulan (M0, M1, M2, M3)</li>
+                        <li>MAB vs WAB Trend — dual-line chart 8 minggu</li>
+                        <li>Buyer Segments — stacked bar: New vs Repeat Buyers per bulan</li>
+                        <li>Churn Reasons — bar chart alasan churn</li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--amber)"></span> Breakdown</div>
+                    <ul class="data-list">
+                        <li>Per segment: Retailer besar vs kecil</li>
+                        <li>Per region / wilayah</li>
+                        <li>Per distributor</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: LOYALTY -->
+    <div class="slide slide-dashboard" id="slide-8">
+        <div class="section-label" style="color:var(--amber);">Tab 4 — Loyalty</div>
+        <h2>Loyalty Dashboard</h2>
+        <div class="slide-desc">Memantau kesehatan program loyalty & voucher — apakah mendorong engagement atau banyak yang terbuang sia-sia.</div>
+        <div class="dashboard-layout">
+            <div class="mockup-panel"><img src="dashboard_loyalty.jpg" alt="Loyalty Dashboard"></div>
+            <div class="data-panel">
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--amber)"></span> KPI Cards</div>
+                    <ul class="data-list">
+                        <li><div><div class="metric-name">Loyalty Adoption Rate <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">% retailer aktif yang menggunakan fitur loyalty. Mengukur seberapa relevan program bagi user.</div></div></li>
+                        <li><div><div class="metric-name">Voucher Claim Rate <span class="cadence-tag tag-weekly">Weekly</span></div><div class="metric-desc">% user yang mengklaim voucher dari yang melihat halaman daftar voucher.</div></div></li>
+                        <li><div><div class="metric-name">Voucher Redemption Rate <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">% voucher yang diklaim dan benar-benar digunakan saat checkout. Mengukur nilai nyata program.</div></div></li>
+                        <li><div><div class="metric-name">Voucher Waste Rate <span class="cadence-tag tag-monthly">Monthly</span></div><div class="metric-desc">% voucher yang expire tanpa pernah dipakai. Tinggi = program kurang menarik atau mekanisme klaim sulit.</div></div></li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--teal)"></span> Charts & Visualisasi</div>
+                    <ul class="data-list">
+                        <li>Voucher Lifecycle — stacked bar: Redeemed / Wasted / Active</li>
+                        <li>Loyalty Tier Distribution — Platinum / Gold / Silver / Bronze</li>
+                        <li>DAU & WAU Trend — dual-line 30 hari</li>
+                        <li>Feature Adoption Rates — perbandingan adoption per fitur</li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--orange)"></span> Insight yang Dijawab</div>
+                    <ul class="data-list">
+                        <li>Voucher mana yang paling sering tidak dipakai?</li>
+                        <li>Apakah naik tier mendorong peningkatan transaksi?</li>
+                        <li>Berapa % retailer yang belum pernah pakai voucher?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: PRODUCT HEALTH -->
+    <div class="slide slide-dashboard" id="slide-9">
+        <div class="section-label" style="color:var(--purple);">Tab 5 — Product Health</div>
+        <h2>Product Health Dashboard</h2>
+        <div class="slide-desc">Dashboard monitoring harian untuk deteksi anomali teknis. PM harus cek ini pertama sebelum dashboard lain.</div>
+        <div class="dashboard-layout">
+            <div class="mockup-panel"><img src="dashboard_product_health.jpg" alt="Product Health Dashboard"></div>
+            <div class="data-panel">
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--red)"></span> Status Indicators (Real-time)</div>
+                    <ul class="data-list">
+                        <li><div><div class="metric-name">Order Submit Success Rate <span class="cadence-tag tag-daily">Daily</span></div><div class="metric-desc">% order yang berhasil disubmit tanpa error teknis. Drop mendadak = ada bug atau downtime.</div></div></li>
+                        <li><div><div class="metric-name">Payment Error Rate <span class="cadence-tag tag-daily">Daily</span></div><div class="metric-desc">% transaksi yang gagal karena error gateway atau sistem pembayaran. Target: di bawah 2%.</div></div></li>
+                        <li><div><div class="metric-name">Zero-Result Search Rate <span class="cadence-tag tag-weekly">Weekly</span></div><div class="metric-desc">% pencarian produk yang tidak mengembalikan hasil apapun. Tinggi = gap di katalog produk.</div></div></li>
+                        <li><div><div class="metric-name">DAU (Daily Active Users) <span class="cadence-tag tag-daily">Daily</span></div><div class="metric-desc">Jumlah user unik yang melakukan aktivitas apapun di app hari ini. Sanity check teknis harian.</div></div></li>
+                        <li><div><div class="metric-name">Data Freshness Lag <span class="cadence-tag tag-daily">Daily</span></div><div class="metric-desc">Selisih waktu antara event terjadi dan data tersedia di Power BI. Penting untuk validitas laporan.</div></div></li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--teal)"></span> Charts & Visualisasi</div>
+                    <ul class="data-list">
+                        <li>DAU vs WAU Trend — dual-line 30 hari</li>
+                        <li>Order Submit Success Rate per Jam — bar 24 jam (anomali langsung terlihat)</li>
+                        <li>Top Zero-Result Search Queries — keyword yang tidak ketemu produk</li>
+                        <li>Payment Success Rate Harian — 14 hari dengan highlight incident</li>
+                    </ul>
+                </div>
+                <div class="data-section">
+                    <div class="data-section-title"><span style="background:var(--amber)"></span> Aturan Eskalasi</div>
+                    <ul class="data-list">
+                        <li>DAU turun &gt;20% vs minggu lalu → eskalasi ke Engineering</li>
+                        <li>Payment Error Rate &gt;2% → eskalasi ke Engineering + Finance</li>
+                        <li>Zero-Result Search &gt;20% → eskalasi ke tim Catalog/Data</li>
+                        <li>Data Freshness melebihi SLA → eskalasi ke tim Data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: CLOSING -->
+    <div class="slide slide-closing" id="slide-10">
+        <div style="font-size:40px; margin-bottom:16px;">🎯</div>
+        <h2>Next Steps</h2>
+        <p>Dokumen ini adalah referensi awal untuk diskusi bersama Tim Data. Detail formula dan event source tersedia di PM Metrics Playbook dan B2B Tracking Plan.</p>
+        <div class="next-steps">
+            <div class="next-step-card"><div class="step-num">Step 01</div><div class="step-text">Alignment dengan Tim Data — review event tracking yang sudah & belum tersedia</div></div>
+            <div class="next-step-card"><div class="step-num">Step 02</div><div class="step-text">Build pipeline data ke Data Warehouse sebagai fondasi Power BI</div></div>
+            <div class="next-step-card"><div class="step-num">Step 03</div><div class="step-text">Develop 5 dashboard di Power BI dimulai dari Executive & Product Health (P0)</div></div>
+        </div>
+        <div style="margin-top:32px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+            <div style="background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px 18px; font-size:12px; color:var(--muted);">📄 <strong style="color:var(--text);">PM Metrics Playbook</strong> — Detail metrics & formula</div>
+            <div style="background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px 18px; font-size:12px; color:var(--muted);">📋 <strong style="color:var(--text);">B2B Tracking Plan</strong> — Event dictionary & struktur data</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="nav-bar">
+    <div class="key-hint"><kbd>←</kbd> <kbd>→</kbd> navigasi slide</div>
+    <div class="nav-dots" id="navDots"></div>
+    <div style="display:flex; align-items:center; gap:16px;">
+        <div class="slide-counter" id="slideCounter">1 / 8</div>
+        <div class="nav-buttons">
+            <button class="btn-nav" id="btnPrev" onclick="changeSlide(-1)">←</button>
+            <button class="btn-nav" id="btnNext" onclick="changeSlide(1)">→</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const totalSlides = 10;
+    let current = 1;
+    const dotsContainer = document.getElementById('navDots');
+    for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 1 ? ' active' : '');
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+    }
+    function goToSlide(n) {
+        document.getElementById('slide-' + current).classList.remove('active');
+        dotsContainer.children[current - 1].classList.remove('active');
+        current = Math.max(1, Math.min(totalSlides, n));
+        document.getElementById('slide-' + current).classList.add('active');
+        dotsContainer.children[current - 1].classList.add('active');
+        document.getElementById('slideCounter').textContent = current + ' / ' + totalSlides;
+        document.getElementById('btnPrev').disabled = current === 1;
+        document.getElementById('btnNext').disabled = current === totalSlides;
+    }
+    function changeSlide(dir) { goToSlide(current + dir); }
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+    });
+    document.getElementById('btnPrev').disabled = true;
+</script>
+</body>
+</html>
