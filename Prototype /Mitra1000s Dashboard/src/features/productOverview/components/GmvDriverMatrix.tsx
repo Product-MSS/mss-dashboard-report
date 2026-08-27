@@ -1,11 +1,7 @@
-// ==============================================================================
-// GMV Driver Impact Matrix Component — Mitra1000s Control Tower
-// Clean Structured Table Decomposition of GMV Growth (ΔGMV)
-// ==============================================================================
-
 import React from 'react';
 import type { GmvDriverImpactDto } from '../models/productOverviewDto';
 import { Badge } from '@/shared/components/Badge';
+import { Icons8 } from '@/shared/components/Icons8';
 
 interface GmvDriverMatrixProps {
   drivers: GmvDriverImpactDto[];
@@ -25,7 +21,10 @@ export const GmvDriverMatrix: React.FC<GmvDriverMatrixProps> = ({
       {/* Header: Title, Subtitle, and Total Growth Badge */}
       <div className="ct-widget-card__header">
         <div className="ct-widget-card__title-group">
-          <h3 className="ct-widget-card__title">GMV Driver Impact Matrix</h3>
+          <h3 className="ct-widget-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Icons8 name="growth" size={16} color="var(--primary)" />
+            <span>GMV Driver Impact Matrix</span>
+          </h3>
           <span className="ct-widget-card__subtitle">
             Dekomposisi Faktor Pendorong Pertumbuhan GMV
           </span>

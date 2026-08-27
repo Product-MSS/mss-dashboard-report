@@ -4,11 +4,12 @@
 // ==============================================================================
 
 import React, { useState } from 'react';
+import { Icons8, type Icons8Name } from './Icons8';
 
 export interface NavItem {
   key: string;
   label: string;
-  icon: string;
+  icon: Icons8Name;
   badge?: string;
 }
 
@@ -36,12 +37,12 @@ const navigationGroups: NavGroup[] = [
   {
     platformTitle: 'DASHBOARD MITRA1000S',
     items: [
-      { key: 'overview', label: 'Executive Summary', icon: '🗼', badge: 'Live' },
-      { key: 'revenue', label: 'Revenue & Orders', icon: '💰' },
-      { key: 'growth', label: 'Growth & Akuisisi', icon: '👥' },
-      { key: 'activation', label: 'Activation Funnel', icon: '⚡' },
-      { key: 'retention', label: 'Retention & Cohorts', icon: '🔄' },
-      { key: 'health', label: 'Product Health & Logs', icon: '🏥', badge: '1 Warn' },
+      { key: 'overview', label: 'Executive Summary', icon: 'overview', badge: 'Live' },
+      { key: 'revenue', label: 'Revenue & Orders', icon: 'revenue' },
+      { key: 'growth', label: 'Growth & Akuisisi', icon: 'growth' },
+      { key: 'activation', label: 'Activation Funnel', icon: 'activation' },
+      { key: 'retention', label: 'Retention & Cohorts', icon: 'retention' },
+      { key: 'health', label: 'Product Health & Logs', icon: 'health', badge: '1 Warn' },
     ],
   },
 ];
@@ -65,7 +66,9 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
       {/* ── Left Sidebar ─────────────────────────────────────────────────── */}
       <aside className={`db-sidebar ${sidebarCollapsed ? 'db-sidebar--collapsed' : ''}`}>
         <div className="db-sidebar__brand">
-          <div className="db-sidebar__logo-icon">🟣</div>
+          <div className="db-sidebar__logo-icon">
+            <Icons8 name="brand-logo" size={22} color="#7C3AED" />
+          </div>
           {!sidebarCollapsed && (
             <div className="db-sidebar__logo-text">
               <strong>MSS Report</strong>
@@ -91,7 +94,13 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
                       onClick={() => onTabChange(item.key)}
                       title={item.label}
                     >
-                      <span className="db-nav-item__icon">{item.icon}</span>
+                      <span className="db-nav-item__icon">
+                        <Icons8
+                          name={item.icon}
+                          size={18}
+                          color={isActive ? '#7C3AED' : '#64748B'}
+                        />
+                      </span>
                       {!sidebarCollapsed && (
                         <span className="db-nav-item__label">{item.label}</span>
                       )}
@@ -146,7 +155,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
           <div className="db-top-header__actions">
             {/* Data Sync Information & Refresh Action in Topbar */}
             <div className="db-sync-pill">
-              <span className="db-sync-pill__status">🟢 {syncInfo.status || 'Live'}</span>
+              <span className="db-sync-pill__status">● {syncInfo.status || 'Live'}</span>
               <span className="db-sync-pill__divider">|</span>
               <span className="db-sync-pill__info">
                 Data Lag: <strong>{syncInfo.lag || '14 min ago'}</strong>
@@ -163,7 +172,11 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
                   disabled={isRefreshing}
                   title="Muat ulang data terbaru"
                 >
-                  <span className={isRefreshing ? 'db-spin' : ''}>⚡</span>
+                  <Icons8
+                    name="refresh"
+                    size={14}
+                    className={isRefreshing ? 'db-spin' : ''}
+                  />
                   <span>{isRefreshing ? 'Loading...' : 'Refresh Data'}</span>
                 </button>
               )}

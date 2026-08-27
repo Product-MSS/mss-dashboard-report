@@ -1,10 +1,6 @@
-// ==============================================================================
-// What Needs Attention Component — Mitra1000s Control Tower
-// Proactive Anomaly Detection & Telemetry Summary (Option A Minimalist Modern)
-// ==============================================================================
-
 import React from 'react';
 import type { AnomalyAlertDto } from '../models/productOverviewDto';
+import { Icons8 } from '@/shared/components/Icons8';
 
 interface WhatNeedsAttentionProps {
   anomalies: AnomalyAlertDto[];
@@ -17,7 +13,9 @@ export const WhatNeedsAttention: React.FC<WhatNeedsAttentionProps> = ({ anomalie
     return (
       <section className="ct-attention-section" aria-label="What Needs Attention">
         <div className="ct-attention-empty">
-          <span className="ct-attention-empty__icon">✨</span>
+          <span className="ct-attention-empty__icon">
+            <Icons8 name="sparkle" size={24} color="#10B981" />
+          </span>
           <p>Semua metrik dan alur transaksi berjalan normal tanpa anomali kritis.</p>
         </div>
       </section>
@@ -29,8 +27,9 @@ export const WhatNeedsAttention: React.FC<WhatNeedsAttentionProps> = ({ anomalie
       {/* Clean Section Header */}
       <div className="ct-attention-section__header">
         <div className="ct-attention-section__title-group">
-          <h3 className="ct-attention-section__title">
-            🚨 WHAT NEEDS ATTENTION?
+          <h3 className="ct-attention-section__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Icons8 name="alert-triangle" size={18} color="#DC2626" />
+            <span>WHAT NEEDS ATTENTION?</span>
           </h3>
           <span className="ct-attention-section__subtitle">
             Deteksi Anomali & Evaluasi Dampak Transaksi Otomatis (Proactive PM Alerts)
@@ -83,11 +82,20 @@ export const WhatNeedsAttention: React.FC<WhatNeedsAttentionProps> = ({ anomalie
               {/* Minimalist Micro Chips for Top Items / Queries */}
               {alert.topAffectedQueries && alert.topAffectedQueries.length > 0 && (
                 <div className="ct-anomaly-query-chips">
-                  {alert.topAffectedQueries.map((query, qIdx) => (
-                    <span key={qIdx} className="ct-query-chip">
-                      🔍 {query}
-                    </span>
-                  ))}
+                  {alert.topAffectedQueries.map((query, qIdx) => {
+                    const isTruck = query.toLowerCase().includes('radius') || query.toLowerCase().includes('truk');
+                    const isCart = query.toLowerCase().includes('gagal') || query.toLowerCase().includes('stok');
+                    return (
+                      <span key={qIdx} className="ct-query-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Icons8
+                          name={isTruck ? 'truck' : isCart ? 'cart-alert' : 'search'}
+                          size={11}
+                          color="var(--text-muted)"
+                        />
+                        <span>{query}</span>
+                      </span>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -97,3 +105,4 @@ export const WhatNeedsAttention: React.FC<WhatNeedsAttentionProps> = ({ anomalie
     </section>
   );
 };
+

@@ -1,11 +1,7 @@
-// ==============================================================================
-// Hero North Star Card Component — Mitra1000s Control Tower
-// Displays GMV (Net) + Clean Inline Micro-KPIs Quality Decomposition
-// ==============================================================================
-
 import React from 'react';
 import type { NorthStarSummaryDto } from '../models/productOverviewDto';
 import { Badge } from '@/shared/components/Badge';
+import { Icons8 } from '@/shared/components/Icons8';
 
 interface HeroNorthStarCardProps {
   data: NorthStarSummaryDto;
@@ -32,7 +28,9 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
           <span className="ct-hero-card__tag">NORTH STAR METRIC</span>
           <h2 className="ct-hero-card__title">{data.title}</h2>
         </div>
-        <span className="ct-hero-card__arrow-btn" aria-label="Drill down">↗</span>
+        <span className="ct-hero-card__arrow-btn" aria-label="Drill down">
+          <Icons8 name="arrow-up-right" size={16} />
+        </span>
       </div>
 
       {/* Main Stat & Growth Delta */}
@@ -53,7 +51,10 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
       {/* Clean Inline Micro-KPIs Decomposition */}
       <div className="ct-hero-card__quality-section">
         <div className="ct-hero-card__micro-kpi">
-          <span className="ct-micro-kpi__label">Valid Orders</span>
+          <span className="ct-micro-kpi__label">
+            <Icons8 name="orders" size={13} color="var(--text-muted)" />
+            <span>Valid Orders</span>
+          </span>
           <div className="ct-micro-kpi__val-row">
             <strong className="ct-micro-kpi__value">{data.validOrders.toLocaleString('id-ID')}</strong>
             <span className="ct-micro-kpi__delta ct-text-success">
@@ -63,7 +64,10 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
         </div>
 
         <div className="ct-hero-card__micro-kpi">
-          <span className="ct-micro-kpi__label">Average Order Value</span>
+          <span className="ct-micro-kpi__label">
+            <Icons8 name="revenue" size={13} color="var(--text-muted)" />
+            <span>Average Order Value</span>
+          </span>
           <div className="ct-micro-kpi__val-row">
             <strong className="ct-micro-kpi__value">{data.aovFormatted}</strong>
             <span className="ct-micro-kpi__delta ct-text-success">
@@ -73,7 +77,10 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
         </div>
 
         <div className="ct-hero-card__micro-kpi">
-          <span className="ct-micro-kpi__label">Active Buyers</span>
+          <span className="ct-micro-kpi__label">
+            <Icons8 name="store" size={13} color="var(--text-muted)" />
+            <span>Active Buyers</span>
+          </span>
           <div className="ct-micro-kpi__val-row">
             <strong className="ct-micro-kpi__value">{data.activeBuyers.toLocaleString('id-ID')} Toko</strong>
             <span className="ct-micro-kpi__delta ct-text-success">
@@ -83,7 +90,10 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
         </div>
 
         <div className="ct-hero-card__micro-kpi">
-          <span className="ct-micro-kpi__label">Order Frequency</span>
+          <span className="ct-micro-kpi__label">
+            <Icons8 name="frequency" size={13} color="var(--text-muted)" />
+            <span>Order Frequency</span>
+          </span>
           <div className="ct-micro-kpi__val-row">
             <strong className="ct-micro-kpi__value">{data.orderFrequency}x</strong>
             <span className="ct-micro-kpi__sub">/ buyer</span>
@@ -93,3 +103,4 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
     </div>
   );
 };
+

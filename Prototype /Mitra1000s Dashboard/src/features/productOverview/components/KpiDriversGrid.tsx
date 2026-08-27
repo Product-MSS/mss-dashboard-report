@@ -1,16 +1,20 @@
-// ==============================================================================
-// 4 Core KPI Drivers Grid Component — Mitra1000s Control Tower
-// Clean, minimalist card design with clear visual hierarchy
-// ==============================================================================
-
 import React from 'react';
 import type { KpiDriverCardDto } from '../models/productOverviewDto';
 import { Badge, type BadgeVariant } from '@/shared/components/Badge';
+import { Icons8, type Icons8Name } from '@/shared/components/Icons8';
 
 interface KpiDriversGridProps {
   drivers: KpiDriverCardDto[];
   onInspect: (driverId: string) => void;
 }
+
+const getKpiIcon = (id: string): Icons8Name => {
+  if (id.includes('activation')) return 'activation';
+  if (id.includes('retention')) return 'retention';
+  if (id.includes('reorder')) return 'frequency';
+  if (id.includes('search')) return 'search-alert';
+  return 'growth';
+};
 
 export const KpiDriversGrid: React.FC<KpiDriversGridProps> = ({ drivers, onInspect }) => {
   return (
@@ -46,7 +50,10 @@ export const KpiDriversGrid: React.FC<KpiDriversGridProps> = ({ drivers, onInspe
           >
             {/* Header: Eyebrow Category & Metric Title */}
             <div className="ct-kpi-card__header">
-              <span className="ct-kpi-card__category">{kpi.categoryLabel}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Icons8 name={getKpiIcon(kpi.id)} size={13} color="var(--text-muted)" />
+                <span className="ct-kpi-card__category">{kpi.categoryLabel}</span>
+              </div>
               <h3 className="ct-kpi-card__title">{kpi.metricTitle}</h3>
             </div>
 

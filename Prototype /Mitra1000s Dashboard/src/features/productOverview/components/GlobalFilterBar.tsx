@@ -12,6 +12,7 @@ import type {
   DistributorOption,
   SalesForceOption,
 } from '../models/productOverviewDto';
+import { Icons8 } from '@/shared/components/Icons8';
 
 interface GlobalFilterBarProps {
   filter: GlobalFilterState;
@@ -30,7 +31,8 @@ export const GlobalFilterBar: React.FC<GlobalFilterBarProps> = ({
         {/* Date Range Selector */}
         <div className="ct-filter-field">
           <label htmlFor="ct-filter-date" className="ct-filter-field__label">
-            Period
+            <Icons8 name="calendar" size={13} color="var(--text-muted)" />
+            <span>Period</span>
           </label>
           <select
             id="ct-filter-date"
@@ -51,7 +53,8 @@ export const GlobalFilterBar: React.FC<GlobalFilterBarProps> = ({
         {/* Region Geography Selector */}
         <div className="ct-filter-field">
           <label htmlFor="ct-filter-region" className="ct-filter-field__label">
-            Region
+            <Icons8 name="location" size={13} color="var(--text-muted)" />
+            <span>Region</span>
           </label>
           <select
             id="ct-filter-region"
@@ -71,7 +74,8 @@ export const GlobalFilterBar: React.FC<GlobalFilterBarProps> = ({
         {/* User Role / Ecosystem Actor */}
         <div className="ct-filter-field">
           <label htmlFor="ct-filter-role" className="ct-filter-field__label">
-            Category
+            <Icons8 name="role" size={13} color="var(--text-muted)" />
+            <span>Category</span>
           </label>
           <select
             id="ct-filter-role"
@@ -90,7 +94,8 @@ export const GlobalFilterBar: React.FC<GlobalFilterBarProps> = ({
         {/* Distributor Entity */}
         <div className="ct-filter-field">
           <label htmlFor="ct-filter-distributor" className="ct-filter-field__label">
-            Distributor
+            <Icons8 name="distributor" size={13} color="var(--text-muted)" />
+            <span>Distributor</span>
           </label>
           <select
             id="ct-filter-distributor"
@@ -109,7 +114,8 @@ export const GlobalFilterBar: React.FC<GlobalFilterBarProps> = ({
         {/* Sales Force Channel */}
         <div className="ct-filter-field">
           <label htmlFor="ct-filter-sf" className="ct-filter-field__label">
-            Sales Force
+            <Icons8 name="sales-force" size={13} color="var(--text-muted)" />
+            <span>Sales Force</span>
           </label>
           <select
             id="ct-filter-sf"

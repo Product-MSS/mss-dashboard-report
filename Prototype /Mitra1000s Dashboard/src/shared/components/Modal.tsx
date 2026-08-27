@@ -1,9 +1,5 @@
-// ==============================================================================
-// Generic Modal Component — Mitra1000s Design System
-// Reusable Dialog Wrapper with Backdrop, Escape Key Listener & Flexible Slots
-// ==============================================================================
-
 import React, { useEffect, useCallback } from 'react';
+import { Icons8 } from './Icons8';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -80,7 +76,7 @@ export const Modal: React.FC<ModalProps> = ({
               onClick={onClose}
               aria-label="Tutup Dialog"
             >
-              ✕
+              <Icons8 name="close" size={16} />
             </button>
           </div>
         )}

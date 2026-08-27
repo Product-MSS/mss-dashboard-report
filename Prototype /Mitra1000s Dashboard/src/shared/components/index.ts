@@ -6,3 +6,4 @@ export * from './DashboardShell';
 export * from './Badge';
 export * from './Modal';
 export * from './Button';
+export * from './Icons8';

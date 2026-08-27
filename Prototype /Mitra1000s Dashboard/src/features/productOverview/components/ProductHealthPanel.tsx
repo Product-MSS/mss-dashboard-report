@@ -1,10 +1,6 @@
-// ==============================================================================
-// Product Health Telemetry Panel Component — Mitra1000s Control Tower
-// Early Warning System for Technical & Funnel Telemetry (Clean 3-Column Table)
-// ==============================================================================
-
 import React from 'react';
 import type { ProductHealthTelemetryDto } from '../models/productOverviewDto';
+import { Icons8 } from '@/shared/components/Icons8';
 
 interface ProductHealthPanelProps {
   metrics: ProductHealthTelemetryDto[];
@@ -20,7 +16,10 @@ export const ProductHealthPanel: React.FC<ProductHealthPanelProps> = ({ metrics 
       {/* Header: Clean Title and Subtitle */}
       <div className="ct-widget-card__header">
         <div className="ct-widget-card__title-group">
-          <h3 className="ct-widget-card__title">Product Health Telemetry</h3>
+          <h3 className="ct-widget-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Icons8 name="health" size={16} color="var(--primary)" />
+            <span>Product Health Telemetry</span>
+          </h3>
           <span className="ct-widget-card__subtitle">
             Indikator Early Warning Stabilitas Sistem & Pengalaman Pengguna
           </span>
