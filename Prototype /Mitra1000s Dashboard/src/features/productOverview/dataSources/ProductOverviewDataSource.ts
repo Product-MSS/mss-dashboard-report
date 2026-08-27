@@ -20,11 +20,13 @@ export class ProductOverviewDataSource implements IProductOverviewDataSource {
     if (this.apiClient) {
       try {
         const queryParams = new URLSearchParams({
-          dateRange: filter.dateRange,
+          startYear: String(filter.startYear),
+          startMonth: String(filter.startMonth),
+          endYear: String(filter.endYear),
+          endMonth: String(filter.endMonth),
           region: filter.region,
-          role: filter.role,
-          distributorId: filter.distributorId,
-          salesForceId: filter.salesForceId,
+          supplierId: filter.supplierId,
+          sellingAgentId: filter.sellingAgentId,
         });
 
         const response = await this.apiClient.get<ProductOverviewSummaryDto>(

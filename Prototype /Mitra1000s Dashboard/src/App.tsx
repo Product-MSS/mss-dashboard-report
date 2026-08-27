@@ -51,7 +51,7 @@ export function App() {
           <span className="db-tab-placeholder__icon">💰</span>
           <h2 className="db-tab-placeholder__title">Revenue & Order Analysis Dashboard</h2>
           <p className="db-tab-placeholder__desc">
-            Analisis mendalam tren transaksi harian, AOV basket size, kontribusi per distributor, dan
+            Deep-dive analysis on daily transaction trends, AOV basket sizes, selling agent contributions, and
             payment method mix.
           </p>
           <button
@@ -59,7 +59,7 @@ export function App() {
             className="ct-btn ct-btn--secondary"
             onClick={() => setActiveTab('overview')}
           >
-            ← Kembali ke Control Tower
+            ← Back to Control Tower
           </button>
         </div>
       )}
@@ -67,17 +67,17 @@ export function App() {
       {activeTab === 'growth' && (
         <div className="db-tab-placeholder">
           <span className="db-tab-placeholder__icon">👥</span>
-          <h2 className="db-tab-placeholder__title">Growth & Akuisisi Toko Dashboard</h2>
+          <h2 className="db-tab-placeholder__title">Growth & Store Acquisition Dashboard</h2>
           <p className="db-tab-placeholder__desc">
-            Monitoring registrasi toko baru, approval NIK/KYC PT CPD & PT BNN, produktivitas tim Sales
-            Force, dan channel attribution.
+            Track new store registrations, KYC/NIK approvals across Area CPD & Area BNN, sales force
+            productivity, and channel attribution.
           </p>
           <button
             type="button"
             className="ct-btn ct-btn--secondary"
             onClick={() => setActiveTab('overview')}
           >
-            ← Kembali ke Control Tower
+            ← Back to Control Tower
           </button>
         </div>
       )}
@@ -87,15 +87,15 @@ export function App() {
           <span className="db-tab-placeholder__icon">⚡</span>
           <h2 className="db-tab-placeholder__title">Activation & Onboarding Funnel</h2>
           <p className="db-tab-placeholder__desc">
-            Visualisasi drop-off alur First Order (Register ➔ KYC Approved ➔ First Login ➔ Cart View ➔
-            Checkout Submit) dan konversi D-7 / D-30.
+            Visualize first-order funnel drop-offs (Register ➔ KYC Approved ➔ First Login ➔ Cart View ➔
+            Checkout Submit) and D-7 / D-30 conversion velocity.
           </p>
           <button
             type="button"
             className="ct-btn ct-btn--secondary"
             onClick={() => setActiveTab('overview')}
           >
-            ← Kembali ke Control Tower
+            ← Back to Control Tower
           </button>
         </div>
       )}
@@ -105,15 +105,15 @@ export function App() {
           <span className="db-tab-placeholder__icon">🔄</span>
           <h2 className="db-tab-placeholder__title">Cohort Retention & Churn Matrix</h2>
           <p className="db-tab-placeholder__desc">
-            Analisis matriks cohort bulanan, repeat order frequency, early churn prediction, dan
-            evaluasi dampak MOQ distributor pada Toko Tier C.
+            Analyze monthly cohort retention matrices, repeat order frequency, early churn indicators, and
+            distributor MOQ impact on Tier C stores.
           </p>
           <button
             type="button"
             className="ct-btn ct-btn--secondary"
             onClick={() => setActiveTab('overview')}
           >
-            ← Kembali ke Control Tower
+            ← Back to Control Tower
           </button>
         </div>
       )}
@@ -123,15 +123,15 @@ export function App() {
           <span className="db-tab-placeholder__icon">🏥</span>
           <h2 className="db-tab-placeholder__title">Product Health & Technical Diagnostics</h2>
           <p className="db-tab-placeholder__desc">
-            Monitoring error gateway payment, zero-result search term logs, camera crash telemetry pada
-            Android 11, dan SLA data pipeline freshness.
+            Monitor payment gateway failures, zero-result search term logs, camera crash telemetry on
+            Android devices, and data freshness pipeline SLAs.
           </p>
           <button
             type="button"
             className="ct-btn ct-btn--secondary"
             onClick={() => setActiveTab('overview')}
           >
-            ← Kembali ke Control Tower
+            ← Back to Control Tower
           </button>
         </div>
       )}

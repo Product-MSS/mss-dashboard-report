@@ -16,7 +16,7 @@ export const WhatNeedsAttention: React.FC<WhatNeedsAttentionProps> = ({ anomalie
           <span className="ct-attention-empty__icon">
             <Icons8 name="sparkle" size={24} color="#10B981" />
           </span>
-          <p>Semua metrik dan alur transaksi berjalan normal tanpa anomali kritis.</p>
+          <p>All metrics and transaction flows are operating normally with no critical anomalies detected.</p>
         </div>
       </section>
     );
@@ -32,7 +32,7 @@ export const WhatNeedsAttention: React.FC<WhatNeedsAttentionProps> = ({ anomalie
             <span>WHAT NEEDS ATTENTION?</span>
           </h3>
           <span className="ct-attention-section__subtitle">
-            Deteksi Anomali & Evaluasi Dampak Transaksi Otomatis (Proactive PM Alerts)
+            Automated Anomaly Detection & Impact Evaluation (Proactive PM Alerts)
           </span>
         </div>
       </div>

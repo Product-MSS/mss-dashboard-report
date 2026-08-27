@@ -26,7 +26,7 @@ export const DrillDownModal: React.FC<DrillDownModalProps> = ({
   const footerActions = (
     <>
       <Button variant="ghost" onClick={onClose}>
-        Tutup
+        Close
       </Button>
       <Button
         variant="primary"
@@ -62,7 +62,7 @@ export const DrillDownModal: React.FC<DrillDownModalProps> = ({
       {/* Breakdown Table if available */}
       {data.breakdownTable && (
         <div className="ct-modal-table-section">
-          <h4 className="ct-modal-section-title">Kontribusi Berdasarkan Segmen Distributor</h4>
+          <h4 className="ct-modal-section-title">Contribution by Selling Agent Segment</h4>
           <table className="ct-modal-table">
             <thead>
               <tr>
@@ -87,7 +87,7 @@ export const DrillDownModal: React.FC<DrillDownModalProps> = ({
       {/* Root cause analysis description */}
       {data.rootCauseAnalysis && (
         <div className="ct-modal-analysis-box">
-          <strong className="ct-modal-analysis-title">Diagnosa & Rekomendasi PM:</strong>
+          <strong className="ct-modal-analysis-title">Diagnostic Insight & PM Recommendation:</strong>
           <p className="ct-modal-analysis-text">{data.rootCauseAnalysis}</p>
         </div>
       )}

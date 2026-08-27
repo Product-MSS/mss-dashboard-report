@@ -15,7 +15,7 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
       onClick={onInspect}
       role="button"
       tabIndex={0}
-      title={`Nominal Lengkap: ${data.currentGmvFormatted} — Klik untuk analisis mendalam`}
+      title={`Full Amount: ${data.currentGmvFormatted} — Click for deep-dive analysis`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           onInspect();
@@ -56,7 +56,7 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
             <span>Valid Orders</span>
           </span>
           <div className="ct-micro-kpi__val-row">
-            <strong className="ct-micro-kpi__value">{data.validOrders.toLocaleString('id-ID')}</strong>
+            <strong className="ct-micro-kpi__value">{data.validOrders.toLocaleString('en-US')}</strong>
             <span className="ct-micro-kpi__delta ct-text-success">
               (+{data.validOrdersGrowthPercent}%)
             </span>
@@ -82,7 +82,7 @@ export const HeroNorthStarCard: React.FC<HeroNorthStarCardProps> = ({ data, onIn
             <span>Active Buyers</span>
           </span>
           <div className="ct-micro-kpi__val-row">
-            <strong className="ct-micro-kpi__value">{data.activeBuyers.toLocaleString('id-ID')} Toko</strong>
+            <strong className="ct-micro-kpi__value">{data.activeBuyers.toLocaleString('en-US')} Stores</strong>
             <span className="ct-micro-kpi__delta ct-text-success">
               (+{data.activeBuyersGrowthPercent}%)
             </span>

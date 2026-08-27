@@ -108,8 +108,8 @@ Fokus pada **Kausalitas & Anomaly Hunting**:
 │ 🏢 MSS Report   Dashboard Mitra1000s / Executive Summary   🟢 Live  Data Lag: 14 min ago  Update: 14:32 WIB  ⚡ Refresh [AB] Annette Black │
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ [ GLOBAL FILTER LAYER ]                                                                                                │
-│ Periode: [ Last 30 Days ▼ ]   Wilayah: [ Semua Wilayah ▼ ]   Tipe: [ Retailer (Toko) ▼ ]                               │
-│ Distributor: [ Semen Gresik Jabar ▼ ]   Sales: [ Semua Sales ▼ ]                                                       │
+│ Periode: [ 01/01/2026 - 31/08/2026 ▼ ]   Wilayah: [ Semua Wilayah ▼ ]   Supplier: [ Semua Supplier ▼ ]              │
+│ Selling Agent: [ Semua Selling Agent ▼ ]                                                                               │
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ 🌟 NORTH STAR METRIC                                                                                     [ ↗ Detail ]  │
 │ ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
@@ -120,10 +120,10 @@ Fokus pada **Kausalitas & Anomaly Hunting**:
 │ └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
 ├──────────────────────────────────┬──────────────────────────────────┬────────────────────────────────┬─────────────────┤
 │ ACQUISITION                      │ ACTIVATION                       │ RETENTION                      │ REVENUE         │
-│ New Verified Toko (CPD/BNN)      │ D-7 Activation Rate              │ M1 Retention Rate              │ Average Order   │
-│                                  │                                  │                                │                 │
-│ 2.430   ▲ +12.4% (+268) WoW      │ 36.4%   ▼ -5.4% WoW              │ 42.8%   ▼ -3.2% MoM            │ Rp 2.82 M  ▲+4.2│
-│ Target: 2.200 Toko (+230)        │ Target: 40.0% (-3.6%)            │ Target: 45.0% (-2.2%)          │ Target: Rp 2.70M│
+│ New Verified Stores              │ D-7 Activation Rate              │ M1 Retention Rate              │ Average Order   │
+│ 2.430   ▲ +12.4% (+268)          │ 36.4%   ▼ -5.4%                  │ 42.8%   ▼ -3.2%                │ Rp 2.82 M  ▲+4.2│
+│ vs Jul 2026                      │ vs Jul 2026                      │ vs Jul 2026                    │ vs Jul 2026     │
+│ Target: 2.200 (+230)             │ Target: 40.0% (-3.6%)            │ Target: 45.0% (-2.2%)          │ Target: Rp 2.70M│
 ├──────────────────────────────────┴──────────────────────────────────┴────────────────────────────────┴─────────────────┤
 │ 📈 30-DAY GMV TREND                                                    Puncak: Rp 623M (Aug 18) • Rata-rata: Rp 381M/h │
 │                                                                                                                        │
@@ -186,15 +186,26 @@ Filter di bagian atas berfungsi sebagai **Context Provider** yang memengaruhi se
 
 #### Dimensi Filter yang Didukung
 1. **Date Range (`dim_date`):**
-   - Options: `Hari Ini`, `7 Hari Terakhir (D-7)`, `30 Hari Terakhir (D-30) [Default]`, `Month-to-Date (MTD)`, `Quarter-to-Date (QTD)`, `Kustom`.
+   - **Tampilan UI (Single-Field Trigger):** Menggunakan **satu input field terpadu** yang menampilkan format rentang tanggal ringkas: `DD/MM/YYYY - DD/MM/YYYY` (contoh: `01/01/2026 - 31/08/2026` atau `08/10/2026 - 08/10/2027`).
+   - **Mekanisme Popover Modal:** Saat field diklik, muncul floating popover dialog interaktif yang menyediakan:
+     1. **Quick Presets:** `Tahun Ini (YTD) [Default]`, `Bulan Ini (MTD)`, `Tahun Lalu (Full Year)`.
+     2. **Kustom Rentang Kalender (Custom Month-Year Range):** Memilih **Bulan Awal & Tahun Awal** serta **Bulan Akhir & Tahun Akhir** (*Month & Year Picker*).
+   - **Batasan Maksimal (Max Span Limit):** Maksimal rentang yang dapat dipilih adalah **2 Tahun (24 Bulan)** untuk menjaga efisiensi beban query warehouse/Power BI serta relevansi komparasi data multi-tahun.
 2. **Region (`dim_geography` / `dim_users.region`):**
-   - Options: `Semua Wilayah [Default]`, `DKI Jakarta`, `Jawa Barat`, `Jawa Tengah`, `Jawa Timur`, `Banten`, `Luar Jawa`.
-3. **User Role (`dim_users.role`):**
-   - Options: `Semua Role [Default]`, `Retailer (Toko Bangunan)`, `Distributor`, `Supplier`.
-4. **Distributor Entity (`dim_distributor.distributor_id`):**
-   - Options: `Semua Distributor [Default]`, multi-select dropdown distributor aktif.
-5. **Sales Force Channel (`dim_users.registered_by` / `sales_force_id`):**
-   - Options: `Semua Sales Channel [Default]`, `Sales Force (Field Rep)`, `Organik (Self-Registration)`.
+   - Hierarki opsi filter wilayah dengan penempatan prioritas khusus:
+     1. `Semua Wilayah [Default]`
+     2. `Area CPD (Top 1)`
+     3. `Area BNN (Top 2)`
+     4. `DKI Jakarta`
+     5. `Jawa Barat`
+     6. `Jawa Tengah`
+     7. `Jawa Timur`
+     8. `Banten`
+     9. `Luar Jawa`
+3. **Supplier (`dim_supplier.supplier_id` / `dim_supplier.supplier_name`):**
+   - Options: `Semua Supplier [Default]`, multi-select dropdown daftar entitas supplier manufaktur/prinsipal aktif (misal: *PT Semen Indonesia Group*, *PT Krakatau Steel*, *PT Holcim*, dsb.).
+4. **Selling Agent (`dim_selling_agent.selling_agent_id` / `dim_selling_agent.agent_name`):**
+   - Options: `Semua Selling Agent [Default]`, multi-select dropdown daftar badan selling agent / keagenan distributor aktif yang melayani pemenuhan pesanan toko bangunan.
 
 ---
 
@@ -222,45 +233,69 @@ $$\mathbf{GMV} = \mathbf{Active\ Buyers\ (MAB)} \times \mathbf{Order\ Frequency}
 
 ---
 
-### 5.3 Empat Core KPI Drivers (Minimalist Layout)
+### 5.3 Empat Core KPI Drivers (Unified Container Card ala North Star)
+
+Struktur komponen KPI Drivers disatukan dalam **1 Card Besar Terpadu (*Single Container Card*)** yang harmonis dan simetris dengan North Star Metric Card di atasnya:
 
 ```text
-┌──────────────────┬──────────────────┬──────────────────┬─────────────────┐
-│ ACQUISITION      │ ACTIVATION       │ RETENTION        │ REVENUE         │
-│ New Verified Toko│ D-7 Activation   │ M1 Retention     │ AOV             │
-│ 2.430 ▲+12.4% WoW│ 36.4% ▼-5.4% WoW │ 42.8% ▼-3.2% MoM │ Rp 2.82 M ▲+4.2%│
-│ Target: 2.200    │ Target: 40.0%    │ Target: 45.0%    │ Target: Rp 2.70M│
-└──────────────────┴──────────────────┴──────────────────┴─────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ CORE DRIVER METRICS                                                                                                │
+│ Key Performance Indicators                                                                                         │
+│ * Funnel metrics are scoped by Date & Region only; Supplier & Selling Agent filters do not apply                   │
+├──────────────────────────────────┬──────────────────────────────────┬───────────────────────────────┬──────────────┤
+│ ACQUISITION                      │ ACTIVATION                       │ RETENTION                     │ REVENUE      │
+│ New Verified Stores              │ D-7 Activation Rate              │ M1 Retention Rate             │ AOV          │
+│ 2.430   ▲ +12.4% (+268)          │ 36.4%   ▼ -5.4%                  │ 42.8%   ▼ -3.2%               │ Rp 2.82 M  ▲+│
+│ vs Jul 2026                      │ vs Jul 2026                      │ vs Jul 2026                   │ vs Jul 2026  │
+│ Target: 2.200 (+230)             │ Target: 40.0% (-3.6%)            │ Target: 45.0% (-2.2%)         │ Target: Rp 2.│
+└──────────────────────────────────┴──────────────────────────────────┴───────────────────────────────┴──────────────┘
 ```
 
-1. **Acquisition: New Verified Toko (CPD/BNN)**:
-   - *Definisi:* Jumlah toko baru yang telah diapprove dan memiliki `idtokocpd`.
-   - *Aktual:* `2.430 Toko` (`▲ +12.4% (+268) WoW` • `Target: 2.200 Toko (+230)`).
-2. **Activation: D-7 Activation Rate**:
-   - *Definisi:* Persentase toko terverifikasi baru yang first order $\le 7$ hari.
-   - *Aktual:* `36.4%` (`▼ -5.4% WoW` • `Target: 40.0% (-3.6%)`).
-3. **Retention: M1 Retention Rate**:
-   - *Definisi:* Persentase pembeli bulan lalu yang kembali belanja di bulan berjalan.
-   - *Aktual:* `42.8%` (`▼ -3.2% MoM` • `Target: 45.0% (-2.2%)`).
-4. **Revenue: Average Order Value (AOV)**:
-   - *Definisi:* Rata-rata nominal belanja per transaksi checkout.
-   - *Aktual:* `Rp 2.82 M` (`▲ +4.2% MoM` • `Target: Rp 2.70 M (+Rp 120k)`).
+1. **Header Card:**
+   - **Tag:** `CORE DRIVER METRICS` (*purple micro uppercase badge*).
+   - **Title:** `Key Performance Indicators` (H2 bold).
+   - **Note:** `* Funnel metrics are scoped by Date & Region only; Supplier & Selling Agent filters do not apply`.
+2. **4 Kolom Terpadu Interaktif:**
+   - Masing-masing kolom memiliki hover background lembut dan dapat diklik secara independen untuk memunculkan modal investigasi drill-down.
+   - **Acquisition (New Verified Stores):** `2,430 Stores` (`▲ +12.4% (+268)` • `vs July 2026` • `Target: 2,200 Stores (+230)`).
+   - **Activation (D-7 Activation Rate):** `36.4%` (`▼ -5.4%` • `vs July 2026` • `Target: 40.0% (-3.6%)`).
+   - **Retention (M1 Retention Rate):** `42.8%` (`▼ -3.2%` • `vs July 2026` • `Target: 45.0% (-2.2%)`).
+   - **Revenue (Average Order Value):** `Rp 2.82 M` (`▲ +4.2%` • `vs July 2026` • `Target: Rp 2.70 M (+Rp 120k)`).
 
 ---
 
-### 5.4 30-Day GMV Trend (Smooth Spline & Scrubber)
+### 5.4 Dynamic GMV Dual-Line Trend Chart (Daily vs Monthly)
 
-1. **Spline Rendering:** Monotone Cubic Spline (Catmull-Rom to Bezier) dengan area gradien ungu halus dan glow shadow.
-2. **Scrubber Interaktif:** Scrubber vertikal dinamis muncul saat hover di sepanjang grafik dengan tooltip harian instan.
-3. **Puncak Promo Beacon:** Radar dot berdenyut di tanggal 18 Agustus (`Aug 18: Rp 623M`).
+Visualisasi tren GMV beradaptasi secara otomatis berdasarkan rentang tanggal yang dipilih di Global Filter Bar:
+1. **Mode 1 Bulan (Daily Granularity):**
+   - Menampilkan titik harian (Hari 1 s.d. Hari 28/30/31).
+   - Sumbu X: Interval tanggal harian (`Aug 1`, `Aug 5`, `Aug 10`, `Aug 15`, `Aug 20`, `Aug 25`, `Aug 31`).
+   - Judul & Rata-rata: `Daily GMV Trend (August 2026)` • `Average: Rp 381M/day` • `Peak: Rp 623M (Aug 18)`.
+   - Tooltip Scrubber: Rincian transaksi harian (`Daily GMV`, `Valid Orders`, `AOV`, `Active Buyers`).
+2. **Mode 2 Bulan s.d. 2 Tahun (Monthly Granularity):**
+   - Mengubah grafik menjadi agregasi per bulan (`Jan 2026`, `Feb 2026`, ... `Aug 2026`).
+   - Sumbu X: Daftar bulan dalam rentang filter.
+   - Judul & Rata-rata: `8-Month GMV Trend (Jan 2026 - Aug 2026)` • `Average: Rp 1.56B/month` • `Peak: Rp 1.72B (Aug 2026)`.
+   - Tooltip Scrubber: Rincian transaksi bulanan (`Monthly GMV`, `Valid Orders`, `Average Order Value`, `Active Buyers`).
+3. **Spline Rendering & Beacon:** Kurva halus Monotone Cubic Spline (Catmull-Rom to Bezier) dengan beacon event promosi dan interactive vertical scrubber.
 
 ---
 
 ### 5.5 GMV Driver Impact Matrix Table
 
-Membedah secara matematis 3 tuas pendorong GMV dengan alokasi lebar kolom terkunci dan `white-space: nowrap`:
+Tabel ini membedah secara matematis **3 Tuas Pendorong GMV** (*GMV Drivers*) untuk mengisolasi faktor mana yang berkontribusi paling dominan terhadap pertumbuhan atau penurunan GMV pada periode berjalan.
 
-$$\Delta \mathbf{GMV} = \mathbf{Impact}_{\text{AOV}} + \mathbf{Impact}_{\text{Buyers}} + \mathbf{Impact}_{\text{Frequency}}$$
+```text
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ GMV DRIVER IMPACT MATRIX                                                                                               │
+├──────────────────────────────────────┬────────────────────────┬─────────────────────┬──────────────────┬───────────────┤
+│ FAKTOR PENGGERAK (34%)               │ DEFINISI OPERASIONAL   │ NILAI AKTUAL (22%)  │ PERUBAHAN (22%)  │ KONTRIBUSI    │
+├──────────────────────────────────────┼────────────────────────┼─────────────────────┼──────────────────┼───────────────┤
+│ Basket Size (AOV Impact)             │ Rata-rata GMV / order  │ Rp 2.82 M           │ ▲ +4.2% MoM      │ +Rp 520 M     │
+│ Active Buyers (Buyer Volume Impact)  │ Akun toko belanja      │ 1.850 Toko          │ ▲ +2.1% MoM      │ +Rp 250 M     │
+│ Order Frequency Impact               │ Pesanan / pembeli      │ 2.39x / bulan       │ ▲ +1.8% MoM      │ +Rp 176.5 M   │
+└──────────────────────────────────────┴────────────────────────┴─────────────────────┴──────────────────┴───────────────┘
+```
 
 | Faktor Penggerak (34%) | Sub-Keterangan (Definisi Operasional) | Nilai Aktual (22%) | Perubahan MoM (22%) | Kontribusi ΔGMV (22%) |
 | :--- | :--- | :---: | :---: | :---: |
@@ -270,9 +305,100 @@ $$\Delta \mathbf{GMV} = \mathbf{Impact}_{\text{AOV}} + \mathbf{Impact}_{\text{Bu
 
 ---
 
+#### A. Kerangka Kerja Dekomposisi GMV (Mathematical Attribution Model)
+
+Secara fundamental, GMV merupakan hasil perkalian dari 3 variabel independen:
+
+$$\mathbf{GMV} = \mathbf{Active\ Buyers\ (B)} \times \mathbf{Order\ Frequency\ (F)} \times \mathbf{Average\ Order\ Value\ (A)}$$
+
+$$\text{Dimana: } \mathbf{Total\ Valid\ Orders\ (O)} = B \times F \implies \mathbf{GMV} = O \times A$$
+
+Perubahan total GMV antara periode berjalan ($t$) dengan periode pembanding ($t-1$) adalah:
+
+$$\Delta \mathbf{GMV} = \mathbf{GMV}_t - \mathbf{GMV}_{t-1} = (B_t \times F_t \times A_t) - (B_{t-1} \times F_{t-1} \times A_{t-1})$$
+
+Agar total kontribusi dari ketiga faktor penggerak **100% merekonsiliasi $\Delta\mathbf{GMV}$ tanpa selisih/residual**, digunakan metode **Stepwise Sequential Attribution (Waterfall Factor Model)**:
+
+$$\Delta \mathbf{GMV} = \mathbf{Impact}_{\text{Buyers}} + \mathbf{Impact}_{\text{Frequency}} + \mathbf{Impact}_{\text{AOV}}$$
+
+---
+
+#### B. Rumus Hitungan Detail Per Kolom GMV Driver
+
+##### 1. Kolom "Nilai Aktual" ($X_t$)
+Menghitung nilai riil masing-masing metrik pada periode yang dipilih di filter context ($t$):
+
+- **Basket Size (AOV - $A_t$):**
+  $$A_t = \frac{\mathbf{GMV}_t}{\text{Total Valid Orders}_t} = \frac{\sum \text{net\_amount}_t}{\text{COUNT}(\text{order\_id}_t)}$$
+- **Active Buyers ($B_t$):**
+  $$B_t = \text{COUNT}(\text{DISTINCT } \text{buyer\_id}_t) \quad \forall \text{ valid orders in period } t$$
+- **Order Frequency ($F_t$):**
+  $$F_t = \frac{\text{Total Valid Orders}_t}{\text{Active Buyers}_t} = \frac{\text{COUNT}(\text{order\_id}_t)}{B_t}$$
+
+##### 2. Kolom "Perubahan MoM / WoW" ($\Delta X\%$)
+Menghitung laju pertumbuhan relatif terhadap periode pembanding ($t-1$):
+
+$$\Delta X\% = \left( \frac{X_t - X_{t-1}}{X_{t-1}} \right) \times 100\%$$
+
+- **Perubahan AOV ($\Delta A\%$):** $\left( \frac{A_t - A_{t-1}}{A_{t-1}} \right) \times 100\%$
+- **Perubahan Active Buyers ($\Delta B\%$):** $\left( \frac{B_t - B_{t-1}}{B_{t-1}} \right) \times 100\%$
+- **Perubahan Frequency ($\Delta F\%$):** $\left( \frac{F_t - F_{t-1}}{F_{t-1}} \right) \times 100\%$
+
+##### 3. Kolom "Kontribusi $\Delta\mathbf{GMV}$" (Impact Attribution Value)
+Menghitung porsi nominal rupiah (IDR) kenaikan/penurunan GMV yang disebabkan murni oleh pergeseran masing-masing tuas pendorong:
+
+1. **Active Buyers Volume Impact ($\mathbf{Impact}_{\text{Buyers}}$):**
+   $$\mathbf{Impact}_{\text{Buyers}} = (B_t - B_{t-1}) \times F_{t-1} \times A_{t-1} = \Delta B \times F_{t-1} \times A_{t-1}$$
+   *Tujuan Bisnis:* Mengukur seberapa besar rupiah GMV bertambah/berkurang semata-mata karena akuisisi/reaktivasi jumlah toko pembeli, dengan asumsi frekuensi dan ukuran keranjang tetap pada level baseline periode lalu.
+
+2. **Order Frequency Impact ($\mathbf{Impact}_{\text{Frequency}}$):**
+   $$\mathbf{Impact}_{\text{Frequency}} = B_t \times (F_t - F_{t-1}) \times A_{t-1} = B_t \times \Delta F \times A_{t-1}$$
+   *Tujuan Bisnis:* Mengukur dampak kenaikan/penurunan kebiasaan repeat order per toko dari seluruh basis pembeli aktif saat ini, dengan asumsi nominal belanja per order tetap pada baseline periode lalu.
+
+3. **Basket Size / AOV Impact ($\mathbf{Impact}_{\text{AOV}}$):**
+   $$\mathbf{Impact}_{\text{AOV}} = B_t \times F_t \times (A_t - A_{t-1}) = \text{Orders}_t \times \Delta A$$
+   *Tujuan Bisnis:* Mengukur dampak membesarnya/mengecilnya nominal keranjang checkout dari seluruh total pesanan sah yang berhasil terbentuk di periode berjalan.
+
+4. **Persentase Kontribusi Relatif Terhadap Total Pertumbuhan:**
+   $$\mathbf{Share\ of\ Growth\ (\%)} = \left( \frac{\mathbf{Impact}_X}{\Delta \mathbf{GMV}} \right) \times 100\%$$
+
+---
+
+#### C. Tabel Ringkasan Formula & DAX Measures (GMV Driver Matrix)
+
+| Komponen Kolom | Variabel | Formula Matematis | DAX Measure Expression (Power BI) | SQL Expression |
+| :--- | :---: | :--- | :--- | :--- |
+| **Nilai Aktual (AOV)** | $A_t$ | $\frac{\text{GMV}_t}{\text{Orders}_t}$ | `DIVIDE([GMV_Current], [Orders_Current])` | `SUM(net_amount) / COUNT(order_id)` |
+| **Nilai Aktual (Buyers)** | $B_t$ | $\text{Distinct}(Buyers_t)$ | `DISTINCTCOUNT(fact_orders[buyer_id])` | `COUNT(DISTINCT buyer_id)` |
+| **Nilai Aktual (Freq)** | $F_t$ | $\frac{\text{Orders}_t}{B_t}$ | `DIVIDE([Orders_Current], [Buyers_Current])` | `COUNT(order_id)::FLOAT / COUNT(DISTINCT buyer_id)` |
+| **Perubahan MoM (%)** | $\Delta X\%$ | $\frac{X_t - X_{t-1}}{X_{t-1}} \times 100\%$ | `DIVIDE([X_Current] - [X_Prior], [X_Prior]) * 100` | `((val_curr - val_prev) / NULLIF(val_prev, 0)) * 100` |
+| **Kontribusi Buyers** | $\text{Impact}_B$ | $\Delta B \times F_{t-1} \times A_{t-1}$ | `([Buyers_Current] - [Buyers_Prior]) * [Freq_Prior] * [AOV_Prior]` | `(b_curr - b_prev) * f_prev * aov_prev` |
+| **Kontribusi Freq** | $\text{Impact}_F$ | $B_t \times \Delta F \times A_{t-1}$ | `[Buyers_Current] * ([Freq_Current] - [Freq_Prior]) * [AOV_Prior]` | `b_curr * (f_curr - f_prev) * aov_prev` |
+| **Kontribusi AOV** | $\text{Impact}_A$ | $\text{Orders}_t \times \Delta A$ | `[Orders_Current] * ([AOV_Current] - [AOV_Prior])` | `orders_curr * (aov_curr - aov_prev)` |
+
+> [!TIP]
+> **Total Rekonsiliasi Otomatis:**
+> $\text{Impact}_B + \text{Impact}_F + \text{Impact}_A = \text{Rp } 250\text{M} + \text{Rp } 176.5\text{M} + \text{Rp } 520\text{M} = \mathbf{+\text{Rp } 946.5\text{M}} \equiv \Delta\mathbf{GMV}$.
+> Ketiga baris ini menjamin eksekutif dan PM dapat langsung melihat tuas mana yang paling efektif menggerakkan omset bisnis.
+
+---
+
 ### 5.6 Product Health Telemetry Table
 
-Menampilkan 4 indikator early warning stabilitas alur transaksi/funnel dengan status micro-tag di atas judul:
+Menampilkan **4 Indikator Early Warning Telemetri Kesehatan Produk** untuk memantau kelancaran teknis dan user experience di setiap checkpoint alur transaksi e-commerce.
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PRODUCT HEALTH TELEMETRY                                                                         │
+├──────────────────────────────────────┬────────────────────────┬─────────────────┬────────────────┤
+│ INDIKATOR METRIK (56%)               │ DEFINISI OPERASIONAL   │ AKTUAL (22%)    │ SLA TARGET(22%)│
+├──────────────────────────────────────┼────────────────────────┼─────────────────┼────────────────┤
+│ ● CRITICAL  Zero-Result Search Rate  │ Rasio keyword 0 hasil  │ 8.70%           │ ≤ 3.0%         │
+│ ● NORMAL    Add to Cart Success Rate │ Klik ATC sukses simpan │ 94.20%          │ ≥ 90.0%        │
+│ ● NORMAL    Checkout Success Rate    │ Konversi Cart ke Bayar │ 98.15%          │ ≥ 97.0%        │
+│ ● NORMAL    Payment Success Rate     │ VA/QRIS/TOP lunas      │ 97.80%          │ ≥ 95.0%        │
+└──────────────────────────────────────┴────────────────────────┴─────────────────┴────────────────┘
+```
 
 | Indikator Metrik (56%) | Sub-Keterangan (Definisi Operasional) | Nilai Aktual (22%) | SLA Target (22%) |
 | :--- | :--- | :---: | :---: |
@@ -280,6 +406,143 @@ Menampilkan 4 indikator early warning stabilitas alur transaksi/funnel dengan st
 | `● NORMAL`<br>**Add to Cart Success Rate** | *Rasio klik Add to Cart yang sukses tersimpan.* | `94.20%` | `≥ 90.0%` |
 | `● NORMAL`<br>**Checkout Success Rate** | *Rasio konversi dari Cart ke halaman Pembayaran.* | `98.15%` | `≥ 97.0%` |
 | `● NORMAL`<br>**Payment Success Rate** | *Rasio pembayaran VA/QRIS/TOP yang berstatus lunas.* | `97.80%` | `≥ 95.0%` |
+
+---
+
+#### A. Logika, Rumus Matematis & Filter Rules 4 Indikator Telemetri
+
+---
+
+#### 1. Zero-Result Search Rate (Search Discovery Health)
+Mengukur efektivitas sistem pencarian dan kelengkapan katalog/sinonim produk.
+
+##### a. Rumus Matematis:
+$$\text{Zero-Result Search Rate} = \left( \frac{\text{Total Sesi Pencarian dengan Hasil } 0\text{ SKU}}{\text{Total Seluruh Sesi Pencarian yang Dilakukan}} \right) \times 100\%$$
+
+$$\text{Formula Detail} = \left( \frac{\text{COUNT}(\text{search\_id WHERE results\_count} = 0)}{\text{COUNT}(\text{search\_id})} \right) \times 100\%$$
+
+##### b. Filter & Aturan Pengecualian (Data Sanitization):
+- **Include:** Semua query pencarian teks di kolom search bar aplikasi mobile dan web.
+- **Exclude:** Query kosong (`TRIM(query_text) = ''`), query dengan panjang $< 2$ karakter, dan trafik scraping/bot otomatis (`user_agent NOT LIKE '%bot%'`).
+
+##### c. SLA Target & Aturan Status UI:
+- 🟢 **NORMAL:** $\le 3.0\%$ (Katalog dan sinonim pencarian berfungsi prima).
+- 🟡 **WARNING:** $3.1\% - 6.0\%$ (Mulai terjadi gap kata kunci populer yang belum terdaftar di CMS).
+- 🔴 **CRITICAL:** $> 6.0\%$ (Terjadi lonjakan kata kunci gagal / issue indexing Elasticsearch).
+
+##### d. DAX Measure (Power BI):
+```dax
+Zero_Result_Search_Rate = 
+VAR TotalSearches = COUNTROWS(fact_searches)
+VAR ZeroResults = CALCULATE(COUNTROWS(fact_searches), fact_searches[results_count] = 0)
+RETURN
+    DIVIDE(ZeroResults, TotalSearches, 0)
+```
+
+---
+
+#### 2. Add to Cart Success Rate (Cart Pipeline Health)
+Mengukur keandalan tombol *Add to Cart* saat buyer memilih barang, termasuk validasi stok dan MOQ distributor.
+
+##### a. Rumus Matematis:
+$$\text{Add to Cart Success Rate} = \left( \frac{\text{Total Percobaan Add to Cart yang Berhasil Tersimpan}}{\text{Total Percobaan Add to Cart Keseluruhan}} \right) \times 100\%$$
+
+$$\text{Formula Detail} = \left( \frac{\text{COUNT}(\text{event\_id WHERE action\_status} = '\text{success}')}{\text{COUNT}(\text{event\_id WHERE action\_type} = '\text{add\_to\_cart}')} \right) \times 100\%$$
+
+##### b. Filter & Aturan Pengecualian:
+- **Numerator (Berhasil):** Event penambahan barang ke keranjang yang menerima response `HTTP 200 OK` dan item tersimpan di tabel session/cart.
+- **Denominator (Total):** Seluruh klik tombol *Tambah ke Keranjang* (termasuk yang gagal akibat Out-of-Stock, MOQ rule failure, atau API timeout).
+- **Exclude:** Klik beruntun cepat (*double-click debouncing* $< 500\text{ms}$).
+
+##### c. SLA Target & Aturan Status UI:
+- 🟢 **NORMAL:** $\ge 90.0\%$ (Aliran simpan keranjang lancar).
+- 🟡 **WARNING:** $85.0\% - 89.9\%$ (Toko mulai sering terbentur stok habis semu atau validasi MOQ).
+- 🔴 **CRITICAL:** $< 85.0\%$ (Kendala teknis database cart service atau integrasi stok distributor offline).
+
+##### d. DAX Measure (Power BI):
+```dax
+ATC_Success_Rate = 
+VAR TotalAttempts = COUNTROWS(fact_cart_events)
+VAR SuccessAttempts = CALCULATE(COUNTROWS(fact_cart_events), fact_cart_events[action_status] = "success")
+RETURN
+    DIVIDE(SuccessAttempts, TotalAttempts, 0)
+```
+
+---
+
+#### 3. Checkout Success Rate (Checkout Funnel Health)
+Mengukur kelancaran alur pemesanan dari keranjang belanja menuju penerbitan tagihan pembayaran (mengevaluasi kendala ongkos kirim truk dan limit kredit).
+
+##### a. Rumus Matematis:
+$$\text{Checkout Success Rate} = \left( \frac{\text{Total Sesi Checkout yang Sukses Submit ke Pembayaran}}{\text{Total Sesi Checkout yang Diinisiasi (Checkout Initiated)}} \right) \times 100\%$$
+
+$$\text{Formula Detail} = \left( \frac{\text{COUNT}(\text{checkout\_id WHERE step\_status} = '\text{completed\_to\_payment}')}{\text{COUNT}(\text{checkout\_id WHERE step\_status} \in ('\text{completed\_to\_payment}', '\text{dropped}', '\text{failed}'))} \right) \times 100\%$$
+
+##### b. Filter & Aturan Pengecualian:
+- **Numerator (Sukses):** Buyer menekan tombol *"Lanjut ke Pembayaran"* dan sistem sukses menghasilkan `order_id` / tagihan pembayaran.
+- **Denominator (Inisiasi):** Buyer membuka halaman checkout dan memulai kalkulasi ongkir/metode bayar.
+- **Root Cause Drop Tracked:** Timeout integrasi API ongkir truk distributor, limit plafon kredit CPD/BNN habis, dan gagal validasi minimum muatan (tonase).
+
+##### c. SLA Target & Aturan Status UI:
+- 🟢 **NORMAL:** $\ge 97.0\%$ (Kalkulasi logistik dan plafon kredit berjalan mulus).
+- 🟡 **WARNING:** $94.0\% - 96.9\%$ (Toko di perbatasan ring logistik mengalami timeout ongkir).
+- 🔴 **CRITICAL:** $< 94.0\%$ (Kegagalan checkout masif akibat API pihak ketiga down).
+
+##### d. DAX Measure (Power BI):
+```dax
+Checkout_Success_Rate = 
+VAR TotalCheckouts = COUNTROWS(fact_checkouts)
+VAR CompletedCheckouts = CALCULATE(COUNTROWS(fact_checkouts), fact_checkouts[step_status] = "completed_to_payment")
+RETURN
+    DIVIDE(CompletedCheckouts, TotalCheckouts, 0)
+```
+
+---
+
+#### 4. Payment Success Rate (Payment Settlement Health)
+Mengukur efektivitas penyelesaian transaksi keuangan (Virtual Account Bank, QRIS, dan Term of Payment) hingga pesanan sah berstatus *Paid/Settled*.
+
+##### a. Rumus Matematis:
+$$\text{Payment Success Rate} = \left( \frac{\text{Total Pesanan Berstatus Lunas (Settled / Paid)}}{\text{Total Transaksi Pembayaran yang Dibuat (Final State)}} \right) \times 100\%$$
+
+$$\text{Formula Detail} = \left( \frac{\text{COUNT}(\text{payment\_id WHERE payment\_status} = '\text{settled}')}{\text{COUNT}(\text{payment\_id WHERE payment\_status} \in ('\text{settled}', '\text{failed}', '\text{expired}'))} \right) \times 100\%$$
+
+##### b. Filter & Aturan Pengecualian:
+- **Numerator (Lunas):** Transaksi yang menerima *Payment Notification Webhook* sukses dari Payment Gateway / Core Banking.
+- **Denominator:** Seluruh transaksi yang telah mencapai status final (`settled`, `failed`, `expired`).
+- **Exclude:** Transaksi yang masih berstatus `pending` di dalam jendela masa aktif pembayaran (grace period 24 jam belum lewat).
+- **Exclude:** Akun pengujian internal QA (`is_internal_test = false`).
+
+##### c. SLA Target & Aturan Status UI:
+- 🟢 **NORMAL:** $\ge 95.0\%$ (Gateway bank responsif dan settlement tepat waktu).
+- 🟡 **WARNING:** $90.0\% - 94.9\%$ (Gangguan intermiten pada salah satu channel VA bank).
+- 🔴 **CRITICAL:** $< 90.0\%$ (Downtime payment gateway atau sistem approval TOP macet).
+
+##### d. DAX Measure (Power BI):
+```dax
+Payment_Success_Rate = 
+VAR FinalizedPayments = CALCULATE(
+    COUNTROWS(fact_payments), 
+    fact_payments[payment_status] IN {"settled", "failed", "expired"}
+)
+VAR SettledPayments = CALCULATE(
+    COUNTROWS(fact_payments), 
+    fact_payments[payment_status] = "settled"
+)
+RETURN
+    DIVIDE(SettledPayments, FinalizedPayments, 0)
+```
+
+---
+
+#### B. Matriks Spesifikasi Formula Telemetri Lengkap
+
+| Indikator Metrik | Event ID Tracking | Pembilang (Numerator) | Penyebut (Denominator) | Arah Optimasi | Target SLA | Aturan Ambang Batas Evaluasi |
+| :--- | :--- | :--- | :--- | :---: | :---: | :--- |
+| **Zero-Result Search Rate** | `C-01` (`catalog_searched`) | `COUNT(results = 0)` | `COUNT(searches)` | $\downarrow$ *Lower is better* | $\le 3.0\%$ | $\le 3.0\% \rightarrow 🟢$<br>$3.1-6.0\% \rightarrow 🟡$<br>$> 6.0\% \rightarrow 🔴$ |
+| **Add to Cart Success Rate** | `CT-02` (`cart_item_added`) | `COUNT(status = 'success')` | `COUNT(cart_attempts)` | $\uparrow$ *Higher is better* | $\ge 90.0\%$ | $\ge 90\% \rightarrow 🟢$<br>$85-89.9\% \rightarrow 🟡$<br>$< 85\% \rightarrow 🔴$ |
+| **Checkout Success Rate** | `CO-01` (`checkout_initiated`) | `COUNT(status = 'paid_submit')`| `COUNT(checkouts)` | $\uparrow$ *Higher is better* | $\ge 97.0\%$ | $\ge 97\% \rightarrow 🟢$<br>$94-96.9\% \rightarrow 🟡$<br>$< 94\% \rightarrow 🔴$ |
+| **Payment Success Rate** | `P-01` (`payment_settled`) | `COUNT(status = 'settled')` | `COUNT(final_payments)`| $\uparrow$ *Higher is better* | $\ge 95.0\%$ | $\ge 95\% \rightarrow 🟢$<br>$90-94.9\% \rightarrow 🟡$<br>$< 90\% \rightarrow 🔴$ |
 
 ---
 
@@ -495,8 +758,8 @@ $$\mathbf{Lost\ GMV}_{\text{Payment}} = \mathbf{Failed\ Payment\ Orders} \times 
 
 | Elemen UI di Control Tower | Aksi Interaksi | Parameter yang Diteruskan | Target Halaman Deep Dive |
 |---|---|---|---|
-| **Hero GMV Card** | Klik tombol drill-down `↗` | `date_range`, `region`, `distributor_id` | **Revenue & Orders** |
-| **KPI Acquisition Card** | Klik kartu "New Verified Toko" | `cohort_week`, `region`, `sales_force_id` | **Growth & Akuisisi** |
+| **Hero GMV Card** | Klik tombol drill-down `↗` | `date_range`, `region`, `supplier_id`, `selling_agent_id` | **Revenue & Orders** |
+| **KPI Acquisition Card** | Klik kartu "New Verified Toko" | `cohort_week`, `region`, `kyc_channel` | **Growth & Akuisisi** |
 | **KPI Activation Card** | Klik kartu "D-7 Activation Rate" | `registration_cohort`, `kyc_channel` | **Activation Funnel** |
 | **KPI Retention Card** | Klik kartu "M1 Retention Rate" | `buyer_cohort_month`, `retailer_tier` | **Retention & Cohorts** |
 | **GMV Trend Line Point** | Hover / Klik titik tanggal $T$ | `selected_date = T` | **Daily Breakdown Inspector** |

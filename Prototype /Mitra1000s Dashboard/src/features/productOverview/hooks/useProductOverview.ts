@@ -14,11 +14,13 @@ import type {
 } from '../models/productOverviewDto';
 
 const defaultFilter: GlobalFilterState = {
-  dateRange: 'last_30_days',
+  startYear: 2026,
+  startMonth: 1,
+  endYear: 2026,
+  endMonth: 8,
   region: 'all',
-  role: 'retailer',
-  distributorId: 'all',
-  salesForceId: 'all',
+  supplierId: 'all',
+  sellingAgentId: 'all',
 };
 
 const dataSource = new ProductOverviewDataSource();
@@ -47,8 +49,8 @@ export function useProductOverview() {
     setFilterState((prev) => {
       const next = { ...prev, ...partial };
 
-      // Cascading logic: If distributor is selected, auto adjust region
-      if (partial.distributorId === 'semen_gresik_jabar' && prev.region !== 'jawa_barat') {
+      // Cascading logic: If Selling Agent Semen Gresik Jabar is selected, auto adjust region to Jawa Barat if still 'all'
+      if (partial.sellingAgentId === 'sa_semen_gresik_jabar' && prev.region === 'all') {
         next.region = 'jawa_barat';
       }
       return next;

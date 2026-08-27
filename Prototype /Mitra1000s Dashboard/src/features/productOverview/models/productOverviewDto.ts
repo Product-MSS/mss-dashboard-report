@@ -3,18 +3,39 @@
 // Reference: planning/Product_Overview.md & PM_Metrics_Playbook.md
 // ==============================================================================
 
-export type DateRangeOption = 'last_7_days' | 'last_30_days' | 'mtd' | 'qtd' | 'custom';
-export type RegionOption = 'all' | 'dki_jakarta' | 'jawa_barat' | 'jawa_tengah' | 'jawa_timur' | 'banten' | 'luar_jawa';
-export type RoleOption = 'all' | 'retailer' | 'distributor' | 'supplier';
-export type DistributorOption = 'all' | 'semen_gresik_jabar' | 'baja_perkasa' | 'cat_nusantara';
-export type SalesForceOption = 'all' | 'sales_force' | 'organic';
+export type RegionOption =
+  | 'all'
+  | 'area_cpd'
+  | 'area_bnn'
+  | 'dki_jakarta'
+  | 'jawa_barat'
+  | 'jawa_tengah'
+  | 'jawa_timur'
+  | 'banten'
+  | 'luar_jawa';
+
+export type SupplierOption =
+  | 'all'
+  | 'semen_indonesia'
+  | 'krakatau_steel'
+  | 'holcim_indonesia'
+  | 'arwana_citramulia';
+
+export type SellingAgentOption =
+  | 'all'
+  | 'sa_semen_gresik_jabar'
+  | 'sa_baja_perkasa'
+  | 'sa_cat_nusantara'
+  | 'sa_mitra_distrindo';
 
 export interface GlobalFilterState {
-  dateRange: DateRangeOption;
+  startYear: number;
+  startMonth: number; // 1 - 12
+  endYear: number;
+  endMonth: number; // 1 - 12
   region: RegionOption;
-  role: RoleOption;
-  distributorId: DistributorOption;
-  salesForceId: SalesForceOption;
+  supplierId: SupplierOption;
+  sellingAgentId: SellingAgentOption;
 }
 
 export type MetricPolarityStatus = 'good' | 'warning' | 'critical' | 'neutral';
@@ -49,12 +70,13 @@ export interface NorthStarSummaryDto {
 
 export interface KpiDriverCardDto {
   id: 'acquisition' | 'activation' | 'retention' | 'revenue';
-  categoryLabel: string; // e.g. "1️⃣ ACQUISITION"
-  metricTitle: string; // e.g. "New Verified Toko (CPD/BNN)"
+  categoryLabel: string; // e.g. "ACQUISITION"
+  metricTitle: string; // e.g. "New Verified Stores"
   currentValueFormatted: string; // e.g. "2,430" or "36.4%"
   currentValueRaw: number;
   isPercentage: boolean;
   delta: MetricDelta;
+  comparisonPeriodText: string; // e.g. "vs Jul 2026" or "vs May 2025 - Dec 2025"
   targetValue: number;
   targetFormatted: string;
   targetGapFormatted: string;
@@ -63,10 +85,14 @@ export interface KpiDriverCardDto {
   drillDownRoute: string;
 }
 
+export type TrendGranularity = 'daily' | 'monthly';
+
 export interface GmvTrendDayDto {
-  dayIndex: number;
-  date: string; // e.g. "2026-08-18"
-  dateLabel: string; // e.g. "Day 18 (Tue, Aug 18)"
+  pointIndex: number;
+  dayIndex?: number;
+  date: string; // e.g. "2026-08-18" or "2026-01"
+  dateLabel: string; // e.g. "Day 18 (Aug 18)" or "January 2026"
+  shortLabel: string; // e.g. "Aug 18" or "Jan '26"
   currentGmv: number;
   currentGmvFormatted: string;
   priorGmv: number;
@@ -81,6 +107,16 @@ export interface GmvTrendDayDto {
     gmvFormatted: string;
     sharePercent: number;
   }>;
+}
+
+export interface GmvTrendSummaryDto {
+  granularity: TrendGranularity;
+  chartTitle: string; // e.g. "30-Day GMV Trend (August 2026)" or "8-Month GMV Trend (Jan 2026 - Aug 2026)"
+  peakFormatted: string; // e.g. "Rp 623M (Aug 18)" or "Rp 1.72B (Aug 2026)"
+  avgFormatted: string; // e.g. "Rp 381M/day" or "Rp 1.56B/month"
+  currentPeriodLegend: string; // e.g. "Current Period (Aug 2026)" or "Current Period (Jan - Aug 2026)"
+  priorPeriodLegend: string; // e.g. "Previous Period (Jul 2026)" or "Prior Period (May - Dec 2025)"
+  points: GmvTrendDayDto[];
 }
 
 export interface GmvDriverImpactDto {
@@ -152,8 +188,10 @@ export interface ProductOverviewSummaryDto {
   filter: GlobalFilterState;
   lastUpdatedTime: string;
   dataFreshnessLagMinutes: number;
+  comparisonPeriodText: string;
   northStar: NorthStarSummaryDto;
   kpiDrivers: KpiDriverCardDto[];
+  trend: GmvTrendSummaryDto;
   trend30Days: GmvTrendDayDto[];
   driversImpact: {
     totalGmvDeltaRp: number;

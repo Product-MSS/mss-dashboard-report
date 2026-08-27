@@ -11,6 +11,7 @@
 /* ── CSS Design Tokens ───────────────────────────────────────────────────── */
 :root {
   /* --- Primary Brand Palette (Purple / Indigo) --- */
+  --primary:     #6C5CE7; /* Core Primary brand alias */
   --primary-900: #2E1065;
   --primary-800: #3730A3;
   --primary-700: #4F46E5;
@@ -194,6 +195,13 @@ h3 { font-size: var(--text-h3); font-weight: 600; line-height: 1.35; color: var(
   border: 1px solid var(--border);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-card);
+}
+
+/* Icons8 Vector Helpers */
+.icons8-svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 /* Focus Ring (WCAG 2.2 AA) */

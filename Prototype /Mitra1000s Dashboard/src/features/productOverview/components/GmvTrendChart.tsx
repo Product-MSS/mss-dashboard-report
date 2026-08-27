@@ -1,14 +1,15 @@
 // ==============================================================================
-// 30-Day GMV Trend Chart Component — Mitra1000s Control Tower
-// Smooth Cubic Spline Line Chart with Interactive Scrubber & Minimalist Event Beacon
+// GMV Trend Chart Component — Mitra1000s Control Tower
+// Smooth Cubic Spline Line Chart with Dynamic Daily (1-Month) vs Monthly (2-24 Months) Views
 // ==============================================================================
 
 import React, { useState, useRef } from 'react';
-import type { GmvTrendDayDto } from '../models/productOverviewDto';
+import type { GmvTrendDayDto, GmvTrendSummaryDto } from '../models/productOverviewDto';
 import { Badge } from '@/shared/components/Badge';
 
 interface GmvTrendChartProps {
-  trendData: GmvTrendDayDto[];
+  trendSummary?: GmvTrendSummaryDto;
+  trendData?: GmvTrendDayDto[];
   onPointClick: (day: GmvTrendDayDto) => void;
 }
 
@@ -38,40 +39,60 @@ function getSmoothSplinePath(points: { x: number; y: number }[]): string {
   return path;
 }
 
-export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPointClick }) => {
+export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({
+  trendSummary,
+  trendData,
+  onPointClick,
+}) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  if (!trendData || trendData.length === 0) {
+  const points = trendSummary?.points || trendData || [];
+
+  if (!points || points.length === 0) {
     return (
       <div className="ct-chart-card ct-chart-card--empty">
-        <p>Tidak ada data tren untuk filter yang dipilih.</p>
+        <p>No trend data available for the selected filters.</p>
       </div>
     );
   }
 
-  // Summary calculation: Peak day & Average daily GMV
-  const peakDay = trendData.reduce((max, d) => (d.currentGmv > max.currentGmv ? d : max), trendData[0]);
-  const avgGmv = Math.round(trendData.reduce((sum, d) => sum + d.currentGmv, 0) / trendData.length);
-  const avgGmvFormatted = `Rp ${(avgGmv / 1_000_000).toFixed(0)}M/hari`;
-  const peakGmvFormatted = `Rp ${(peakDay.currentGmv / 1_000_000).toFixed(0)}M (Aug ${peakDay.dayIndex})`;
+  const isMonthly = trendSummary?.granularity === 'monthly' || points.length <= 24 && points.length > 1 && !points[0].date.includes('-08-');
+
+  // Summary calculation: Peak day & Average daily/monthly GMV
+  const peakPoint = points.reduce((max, d) => (d.currentGmv > max.currentGmv ? d : max), points[0]);
+  const avgGmv = Math.round(points.reduce((sum, d) => sum + d.currentGmv, 0) / points.length);
+
+  const avgGmvFormatted = trendSummary?.avgFormatted ||
+    (isMonthly
+      ? `Rp ${(avgGmv / 1_000_000_000).toFixed(2)}B/month`
+      : `Rp ${(avgGmv / 1_000_000).toFixed(0)}M/day`);
+
+  const peakGmvFormatted = trendSummary?.peakFormatted ||
+    (isMonthly
+      ? `Rp ${(peakPoint.currentGmv / 1_000_000_000).toFixed(2)}B (${peakPoint.shortLabel || peakPoint.dateLabel})`
+      : `Rp ${(peakPoint.currentGmv / 1_000_000).toFixed(0)}M (${peakPoint.shortLabel || peakPoint.dayIndex})`);
+
+  const chartTitle = trendSummary?.chartTitle || (isMonthly ? `${points.length}-Month GMV Trend` : '30-Day GMV Trend');
+  const currentLegend = trendSummary?.currentPeriodLegend || 'Current Period';
+  const priorLegend = trendSummary?.priorPeriodLegend || 'Previous Period';
 
   // Calculate SVG ViewBox metrics
   const width = 960;
   const height = 280;
-  const padding = { top: 25, right: 25, bottom: 35, left: 65 };
+  const padding = { top: 25, right: 25, bottom: 35, left: 68 };
 
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
   // Find max GMV for Y scale
   const maxGmv = Math.max(
-    ...trendData.map((d) => Math.max(d.currentGmv, d.priorGmv)),
-    500_000_000
+    ...points.map((d) => Math.max(d.currentGmv, d.priorGmv)),
+    100_000_000
   );
 
   const getX = (index: number) => {
-    return padding.left + (index / (trendData.length - 1 || 1)) * chartWidth;
+    return padding.left + (index / (points.length - 1 || 1)) * chartWidth;
   };
 
   const getY = (val: number) => {
@@ -79,15 +100,15 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
   };
 
   // Build point arrays
-  const currentPoints = trendData.map((d, i) => ({ x: getX(i), y: getY(d.currentGmv) }));
-  const priorPoints = trendData.map((d, i) => ({ x: getX(i), y: getY(d.priorGmv) }));
+  const currentPoints = points.map((d, i) => ({ x: getX(i), y: getY(d.currentGmv) }));
+  const priorPoints = points.map((d, i) => ({ x: getX(i), y: getY(d.priorGmv) }));
 
   // Smooth Spline Curves
   const currentSplineD = getSmoothSplinePath(currentPoints);
   const priorSplineD = getSmoothSplinePath(priorPoints);
 
   // Gradient area path
-  const currentAreaD = `${currentSplineD} L ${getX(trendData.length - 1)},${padding.top + chartHeight} L ${getX(0)},${padding.top + chartHeight} Z`;
+  const currentAreaD = `${currentSplineD} L ${getX(points.length - 1)},${padding.top + chartHeight} L ${getX(0)},${padding.top + chartHeight} Z`;
 
   // Y-axis ticks (4 intervals)
   const yTicks = [0, maxGmv * 0.33, maxGmv * 0.66, maxGmv];
@@ -100,8 +121,8 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
     const svgX = (clientX / rect.width) * width;
 
     const relX = svgX - padding.left;
-    const rawIdx = (relX / chartWidth) * (trendData.length - 1);
-    const clampedIdx = Math.min(Math.max(0, Math.round(rawIdx)), trendData.length - 1);
+    const rawIdx = (relX / chartWidth) * (points.length - 1);
+    const clampedIdx = Math.min(Math.max(0, Math.round(rawIdx)), points.length - 1);
     setHoveredIndex(clampedIdx);
   };
 
@@ -109,23 +130,31 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
     setHoveredIndex(null);
   };
 
-  const activeDay = hoveredIndex !== null ? trendData[hoveredIndex] : null;
+  const activeDay = hoveredIndex !== null ? points[hoveredIndex] : null;
   const activeX = hoveredIndex !== null ? getX(hoveredIndex) : null;
   const activeY = activeDay ? getY(activeDay.currentGmv) : null;
 
-  // Find promo spike day point
-  const promoSpikeIdx = trendData.findIndex((d) => d.isPromoSpike);
+  // Find promo spike point
+  const promoSpikeIdx = points.findIndex((d) => d.isPromoSpike);
   const promoSpikeX = promoSpikeIdx >= 0 ? getX(promoSpikeIdx) : null;
-  const promoSpikeY = promoSpikeIdx >= 0 ? getY(trendData[promoSpikeIdx].currentGmv) : null;
+  const promoSpikeY = promoSpikeIdx >= 0 ? getY(points[promoSpikeIdx].currentGmv) : null;
+
+  // X-axis tick filtering logic
+  const isTickVisible = (index: number, total: number) => {
+    if (total <= 12) return true; // Show all months for <= 12
+    if (total <= 24) return index === 0 || index === total - 1 || index % 2 === 0;
+    // Daily (28-31 days): show every 5 days
+    return index === 0 || (index + 1) % 5 === 0 || index === total - 1;
+  };
 
   return (
-    <section className="ct-chart-card" aria-label="30-Day GMV Trend">
-      {/* Header: Title, Peak & Avg Summary, and Clean Legend */}
+    <section className="ct-chart-card" aria-label="GMV Trend Chart">
+      {/* Header: Title, Peak & Avg Summary, and Dynamic Legend */}
       <div className="ct-chart-card__header">
         <div className="ct-chart-card__title-group">
-          <h3 className="ct-chart-card__title">30-Day GMV Trend</h3>
+          <h3 className="ct-chart-card__title">{chartTitle}</h3>
           <span className="ct-chart-card__subtitle">
-            Puncak: <strong>{peakGmvFormatted}</strong> • Rata-rata: <strong>{avgGmvFormatted}</strong>
+            Peak: <strong>{peakGmvFormatted}</strong> • Average: <strong>{avgGmvFormatted}</strong>
           </span>
         </div>
 
@@ -133,11 +162,11 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
         <div className="ct-chart-legend">
           <div className="ct-chart-legend__item">
             <span className="ct-chart-legend__color ct-chart-legend__color--primary" />
-            <span className="ct-chart-legend__label">Current Period (Aug)</span>
+            <span className="ct-chart-legend__label">{currentLegend}</span>
           </div>
           <div className="ct-chart-legend__item">
             <span className="ct-chart-legend__color ct-chart-legend__color--prior" />
-            <span className="ct-chart-legend__label">Previous Period (Jul)</span>
+            <span className="ct-chart-legend__label">{priorLegend}</span>
           </div>
         </div>
       </div>
@@ -169,6 +198,11 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
           {/* Horizontal Grid Lines */}
           {yTicks.map((tick, idx) => {
             const y = getY(tick);
+            const isBillions = maxGmv >= 1_000_000_000;
+            const tickLabel = isBillions
+              ? `Rp ${(tick / 1_000_000_000).toFixed(1)}B`
+              : `Rp ${(tick / 1_000_000).toFixed(0)}M`;
+
             return (
               <g key={`ytick-${idx}`}>
                 <line
@@ -181,14 +215,14 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
                   strokeWidth="1"
                 />
                 <text
-                  x={padding.left - 12}
+                  x={padding.left - 10}
                   y={y + 4}
                   textAnchor="end"
                   fontSize="11"
                   fill="var(--text-muted)"
                   fontFamily="var(--font-mono)"
                 >
-                  Rp {(tick / 1_000_000).toFixed(0)}M
+                  {tickLabel}
                 </text>
               </g>
             );
@@ -218,7 +252,7 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
             filter="url(#glowEffect)"
           />
 
-          {/* Clean Minimalist Promo Spike Beacon (Aug 18) */}
+          {/* Promo Spike Beacon */}
           {promoSpikeX !== null && promoSpikeY !== null && (
             <g className="ct-chart-beacon">
               <circle
@@ -276,27 +310,27 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
             </g>
           )}
 
-          {/* X-axis Labels (Evenly spaced intervals) */}
-          {trendData
-            .filter((_, i) => i === 0 || (i + 1) % 5 === 0 || i === trendData.length - 1)
-            .map((d) => {
-              const idx = trendData.findIndex((item) => item.date === d.date);
-              const x = getX(idx);
-              return (
-                <text
-                  key={`x-${d.date}`}
-                  x={x}
-                  y={height - 10}
-                  textAnchor="middle"
-                  fontSize="11"
-                  fill="var(--text-muted)"
-                  fontFamily="var(--font-primary)"
-                  fontWeight="500"
-                >
-                  Aug {d.dayIndex}
-                </text>
-              );
-            })}
+          {/* X-axis Labels */}
+          {points.map((d, i) => {
+            if (!isTickVisible(i, points.length)) return null;
+            const x = getX(i);
+            const labelText = d.shortLabel || (d.dayIndex ? `Day ${d.dayIndex}` : d.date);
+
+            return (
+              <text
+                key={`x-${d.date}-${i}`}
+                x={x}
+                y={height - 10}
+                textAnchor="middle"
+                fontSize="11"
+                fill="var(--text-muted)"
+                fontFamily="var(--font-primary)"
+                fontWeight="500"
+              >
+                {labelText}
+              </text>
+            );
+          })}
         </svg>
 
         {/* Hover Floating Tooltip Card */}
@@ -323,28 +357,28 @@ export const GmvTrendChart: React.FC<GmvTrendChartProps> = ({ trendData, onPoint
             )}
 
             <div className="ct-chart-tooltip__row">
-              <span>Daily GMV:</span>
+              <span>{isMonthly ? 'Monthly GMV:' : 'Daily GMV:'}</span>
               <strong className="ct-text-primary">{activeDay.currentGmvFormatted}</strong>
             </div>
             <div className="ct-chart-tooltip__row">
-              <span>Prior Period (Jul):</span>
+              <span>Prior Period:</span>
               <span>{activeDay.priorGmvFormatted}</span>
             </div>
             <div className="ct-chart-tooltip__row">
               <span>Valid Orders:</span>
-              <span>{activeDay.validOrdersCount} orders</span>
+              <span>{activeDay.validOrdersCount.toLocaleString('en-US')} orders</span>
             </div>
             <div className="ct-chart-tooltip__row">
-              <span>AOV:</span>
+              <span>Average Order Value:</span>
               <span>{activeDay.aovFormatted}</span>
             </div>
             <div className="ct-chart-tooltip__row">
               <span>Active Buyers:</span>
-              <span>{activeDay.activeBuyersCount} toko</span>
+              <span>{activeDay.activeBuyersCount.toLocaleString('en-US')} stores</span>
             </div>
 
             <div className="ct-chart-tooltip__action-hint">
-              <span>💡 Klik untuk analisis drill-down</span>
+              <span>💡 Click for drill-down analysis</span>
             </div>
           </div>
         )}

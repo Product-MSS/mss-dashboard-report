@@ -35,11 +35,11 @@ interface DashboardShellProps {
 
 const navigationGroups: NavGroup[] = [
   {
-    platformTitle: 'DASHBOARD MITRA1000S',
+    platformTitle: 'MITRA1000S DASHBOARD',
     items: [
       { key: 'overview', label: 'Executive Summary', icon: 'overview', badge: 'Live' },
       { key: 'revenue', label: 'Revenue & Orders', icon: 'revenue' },
-      { key: 'growth', label: 'Growth & Akuisisi', icon: 'growth' },
+      { key: 'growth', label: 'Growth & Acquisition', icon: 'growth' },
       { key: 'activation', label: 'Activation Funnel', icon: 'activation' },
       { key: 'retention', label: 'Retention & Cohorts', icon: 'retention' },
       { key: 'health', label: 'Product Health & Logs', icon: 'health', badge: '1 Warn' },
@@ -129,7 +129,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
-            {sidebarCollapsed ? '▶' : '◀ Sembunyikan'}
+            {sidebarCollapsed ? '▶' : '◀ Collapse'}
           </button>
         </div>
       </aside>
@@ -140,7 +140,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
         <header className="db-top-header">
           <div className="db-top-header__left">
             <div className="db-top-header__breadcrumb">
-              <span className="db-breadcrumb__platform">Dashboard Mitra1000s</span>
+              <span className="db-breadcrumb__platform">Mitra1000s Dashboard</span>
               <span className="db-breadcrumb__divider">/</span>
               <strong className="db-breadcrumb__current">
                 {activeTab === 'overview'
@@ -170,7 +170,7 @@ export const DashboardShell: React.FC<DashboardShellProps> = ({
                   className="db-sync-pill__refresh-btn"
                   onClick={onRefresh}
                   disabled={isRefreshing}
-                  title="Muat ulang data terbaru"
+                  title="Refresh latest data"
                 >
                   <Icons8
                     name="refresh"

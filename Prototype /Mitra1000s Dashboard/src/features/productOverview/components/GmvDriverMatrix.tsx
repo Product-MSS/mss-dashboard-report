@@ -1,7 +1,6 @@
 import React from 'react';
 import type { GmvDriverImpactDto } from '../models/productOverviewDto';
 import { Badge } from '@/shared/components/Badge';
-import { Icons8 } from '@/shared/components/Icons8';
 
 interface GmvDriverMatrixProps {
   drivers: GmvDriverImpactDto[];
@@ -21,12 +20,11 @@ export const GmvDriverMatrix: React.FC<GmvDriverMatrixProps> = ({
       {/* Header: Title, Subtitle, and Total Growth Badge */}
       <div className="ct-widget-card__header">
         <div className="ct-widget-card__title-group">
-          <h3 className="ct-widget-card__title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Icons8 name="growth" size={16} color="var(--primary)" />
-            <span>GMV Driver Impact Matrix</span>
+          <h3 className="ct-widget-card__title">
+            GMV Driver Impact Matrix
           </h3>
           <span className="ct-widget-card__subtitle">
-            Dekomposisi Faktor Pendorong Pertumbuhan GMV
+            GMV Growth Drivers & Waterfall Factor Decomposition
           </span>
         </div>
         <Badge variant="success">
@@ -45,10 +43,10 @@ export const GmvDriverMatrix: React.FC<GmvDriverMatrixProps> = ({
           </colgroup>
           <thead>
             <tr>
-              <th>Faktor Penggerak</th>
-              <th className="ct-text-right">Nilai Aktual</th>
-              <th className="ct-text-right">Perubahan MoM</th>
-              <th className="ct-text-right">Kontribusi ΔGMV</th>
+              <th>Growth Driver</th>
+              <th className="ct-text-right">Actual Value</th>
+              <th className="ct-text-right">MoM Change</th>
+              <th className="ct-text-right">ΔGMV Contribution</th>
             </tr>
           </thead>
           <tbody>
@@ -58,7 +56,7 @@ export const GmvDriverMatrix: React.FC<GmvDriverMatrixProps> = ({
                   key={driver.id}
                   className="ct-widget-table__row ct-widget-table__row--clickable"
                   onClick={() => onInspectDriver?.(driver.id)}
-                  title="Klik untuk melihat diagnosa detail"
+                  title="Click to view detailed diagnostic analysis"
                 >
                   <td>
                     <div className="ct-driver-name-group">

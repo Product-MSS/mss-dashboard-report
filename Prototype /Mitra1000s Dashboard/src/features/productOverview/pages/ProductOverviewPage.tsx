@@ -57,19 +57,19 @@ export const ProductOverviewPage: React.FC<ProductOverviewPageProps> = ({
     if (onNavigateToDashboard) {
       onNavigateToDashboard(route);
     } else {
-      triggerActionNotification(`Navigasi ke dashboard: ${route}`);
+      triggerActionNotification(`Navigating to dashboard: ${route}`);
     }
   };
 
   const handleSecondaryAction = (actionKey: string, alertTitle: string) => {
     if (actionKey === 'add_alias') {
-      triggerActionNotification(`✅ Berhasil mengajukan alias kata kunci katalog untuk: "${alertTitle}"`);
+      triggerActionNotification(`✅ Keyword catalog alias request submitted for: "${alertTitle}"`);
     } else if (actionKey === 'trigger_campaign') {
-      triggerActionNotification(`🚀 Kampanye push notification voucher berhasil dijadwalkan!`);
+      triggerActionNotification(`🚀 Voucher push notification campaign scheduled successfully!`);
     } else if (actionKey === 'export_churn') {
-      triggerActionNotification(`📥 Berhasil mengekspor 200 data toko churned ke tim Sales Force.`);
+      triggerActionNotification(`📥 Exported 200 churned store records to the Sales Force team.`);
     } else {
-      triggerActionNotification(`Aksi ${actionKey} berhasil dieksekusi.`);
+      triggerActionNotification(`Action ${actionKey} executed successfully.`);
     }
   };
 
@@ -98,7 +98,7 @@ export const ProductOverviewPage: React.FC<ProductOverviewPageProps> = ({
 
       {/* ── 1. Loading State (Skeleton) ────────────────────────────────── */}
       {summaryState.kind === 'loading' && (
-        <main className="ct-skeleton-grid" aria-busy="true" aria-label="Memuat data Control Tower...">
+        <main className="ct-skeleton-grid" aria-busy="true" aria-label="Loading Control Tower metrics...">
           <div className="ct-skeleton-hero" />
           <div className="ct-skeleton-kpi-row">
             <div className="ct-skeleton-kpi-card" />
@@ -113,13 +113,13 @@ export const ProductOverviewPage: React.FC<ProductOverviewPageProps> = ({
       {/* ── 2. Error / Failure State ───────────────────────────────────── */}
       {summaryState.kind === 'failure' && (
         <main className="ct-error-state" role="alert">
-          <h2 className="ct-error-state__title">⚠️ Gagal Memuat Data Control Tower</h2>
+          <h2 className="ct-error-state__title">⚠️ Failed to Load Control Tower Data</h2>
           <p className="ct-error-state__msg">{summaryState.error.message}</p>
           <Button
             variant="primary"
             onClick={() => loadSummary(filter)}
           >
-            🔄 Coba Lagi
+            🔄 Try Again
           </Button>
         </main>
       )}
@@ -128,10 +128,10 @@ export const ProductOverviewPage: React.FC<ProductOverviewPageProps> = ({
       {summaryState.kind === 'empty' && (
         <main className="ct-empty-state">
           <span style={{ fontSize: '48px' }}>📂</span>
-          <h2>Belum Ada Data Transaksi</h2>
-          <p>Tidak ada transaksi yang cocok dengan filter yang dipilih.</p>
+          <h2>No Transaction Data Found</h2>
+          <p>No transactions matched the selected filter criteria.</p>
           <Button variant="primary" onClick={resetFilter}>
-            Reset Filter
+            Reset Filters
           </Button>
         </main>
       )}
@@ -158,11 +158,12 @@ export const ProductOverviewPage: React.FC<ProductOverviewPageProps> = ({
             />
           </div>
 
-          {/* 3. 30-Day GMV Dual-Line Trend Chart with Drill-down nodes */}
+          {/* 3. Dynamic GMV Dual-Line Trend Chart with Drill-down nodes */}
           <div style={{ marginTop: 'var(--space-xl)' }}>
             <GmvTrendChart
+              trendSummary={summaryState.data.trend}
               trendData={summaryState.data.trend30Days}
-              onPointClick={(day: GmvTrendDayDto) => inspectItem('trend_day', day.date)}
+              onPointClick={(point: GmvTrendDayDto) => inspectItem('trend_day', point.date)}
             />
           </div>
 

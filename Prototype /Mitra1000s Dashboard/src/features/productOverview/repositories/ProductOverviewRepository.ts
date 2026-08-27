@@ -26,7 +26,7 @@ export class ProductOverviewRepository implements IProductOverviewRepository {
       // Business Rule B001/B002: Ensure Valid Orders & GMV Consistency
       // GMV = Active Buyers * Order Frequency * AOV
       if (summary.northStar.validOrders <= 0 && summary.northStar.currentGmv > 0) {
-        throw UiErrorFactory.validation('Inkonsistensi data: GMV positif tercatat tanpa ada Valid Orders.');
+        throw UiErrorFactory.validation('Data inconsistency: Positive GMV recorded with zero Valid Orders.');
       }
 
       return summary;
@@ -34,7 +34,7 @@ export class ProductOverviewRepository implements IProductOverviewRepository {
       if (typeof error === 'object' && error !== null && 'type' in error) {
         throw error;
       }
-      throw UiErrorFactory.network('Gagal mengambil ringkasan Control Tower dari data pipeline.');
+      throw UiErrorFactory.network('Failed to fetch Control Tower summary from data pipeline.');
     }
   }
 
@@ -46,40 +46,48 @@ export class ProductOverviewRepository implements IProductOverviewRepository {
     const summary = await this.getSummary(filter);
 
     if (type === 'trend_day') {
-      const dayData = summary.trend30Days.find(
-        (d) => d.date === targetId || d.dayIndex.toString() === targetId
+      const points = summary.trend?.points || summary.trend30Days;
+      const pointData = points.find(
+        (d) =>
+          d.date === targetId ||
+          d.pointIndex.toString() === targetId ||
+          (d.dayIndex && d.dayIndex.toString() === targetId)
       );
 
-      if (!dayData) {
-        throw UiErrorFactory.notFound(`Data analitik untuk tanggal ${targetId} tidak ditemukan.`);
+      if (!pointData) {
+        throw UiErrorFactory.notFound(`Analytics data for ${targetId} was not found.`);
       }
+
+      const isMonthly = summary.trend?.granularity === 'monthly';
 
       return {
         type: 'trend_day',
-        title: `🔍 DRILL-DOWN INVESTIGATION: ${dayData.dateLabel}`,
-        subtitle: dayData.isPromoSpike
-          ? `Anomali Lonjakan Promo: ${dayData.spikeReason}`
-          : 'Pemeriksaan performa transaksi dan keranjang belanja harian',
-        dateOrCohort: dayData.date,
+        title: `🔍 DRILL-DOWN INVESTIGATION: ${pointData.dateLabel}`,
+        subtitle: pointData.isPromoSpike
+          ? `Promo Spike Event: ${pointData.spikeReason}`
+          : isMonthly
+          ? 'Inspection of monthly transaction volume and distributor segment distribution'
+          : 'Inspection of daily transaction performance and checkout basket size',
+        dateOrCohort: pointData.date,
         summaryMetrics: [
-          { label: 'Daily GMV', value: dayData.currentGmvFormatted, status: 'good' },
-          { label: 'Valid Orders', value: `${dayData.validOrdersCount.toLocaleString('id-ID')} orders` },
-          { label: 'Daily AOV', value: dayData.aovFormatted },
-          { label: 'Active Buyers', value: `${dayData.activeBuyersCount.toLocaleString('id-ID')} toko` },
+          { label: isMonthly ? 'Monthly GMV' : 'Daily GMV', value: pointData.currentGmvFormatted, status: 'good' },
+          { label: 'Valid Orders', value: `${pointData.validOrdersCount.toLocaleString('en-US')} orders` },
+          { label: isMonthly ? 'Average AOV' : 'Daily AOV', value: pointData.aovFormatted },
+          { label: 'Active Buyers', value: `${pointData.activeBuyersCount.toLocaleString('en-US')} stores` },
         ],
         breakdownTable: {
-          headers: ['Distributor Entitas', 'Kontribusi GMV', 'Pangsa Pasar (%)'],
-          rows: dayData.topDistributors.map((dist) => [
+          headers: ['Selling Agent Entity', 'GMV Contribution', 'Market Share (%)'],
+          rows: pointData.topDistributors.map((dist) => [
             dist.name,
             dist.gmvFormatted,
             `${dist.sharePercent}%`,
           ]),
         },
-        rootCauseAnalysis: dayData.isPromoSpike
-          ? 'Lonjakan didorong oleh flash promo voucher semen 5% yang diklaim oleh 142 toko di Jawa Barat.'
-          : 'Aktivitas transaksi harian berjalan normal sesuai pola ritme belanja toko bangunan di hari kerja.',
+        rootCauseAnalysis: pointData.isPromoSpike
+          ? (pointData.spikeReason ? `${pointData.spikeReason} successfully drove transaction acceleration.` : 'Spike driven by promotion event.')
+          : 'Transaction volume and purchasing rhythms operate within healthy distribution limits.',
         actionCta: {
-          label: 'Buka Detail Transaksi di Revenue Dashboard →',
+          label: 'View Order Details in Revenue Dashboard →',
           targetRoute: '/analytics/revenue',
         },
       };
@@ -88,27 +96,27 @@ export class ProductOverviewRepository implements IProductOverviewRepository {
     if (type === 'kpi_card') {
       const card = summary.kpiDrivers.find((k) => k.id === targetId);
       if (!card) {
-        throw UiErrorFactory.notFound(`Metrik driver ${targetId} tidak ditemukan.`);
+        throw UiErrorFactory.notFound(`KPI Driver metric ${targetId} was not found.`);
       }
 
       return {
         type: 'kpi_card',
         title: `📊 DEEP DIVE: ${card.metricTitle}`,
-        subtitle: `Evaluasi target: ${card.targetFormatted} | Status: ${card.targetGapFormatted}`,
+        subtitle: `Target evaluation: ${card.targetFormatted} | Gap: ${card.targetGapFormatted}`,
         summaryMetrics: [
-          { label: 'Nilai Aktual', value: card.currentValueFormatted, status: card.delta.status },
-          { label: 'Perubahan', value: `${card.delta.formatted} (${card.delta.comparisonPeriodLabel})` },
-          { label: 'Target KPI', value: card.targetFormatted },
-          { label: 'Status Pencapaian', value: card.isTargetAchieved ? '🟢 Tercapai' : '🟡 Dibawah Target' },
+          { label: 'Actual Value', value: card.currentValueFormatted, status: card.delta.status },
+          { label: 'MoM / WoW Change', value: `${card.delta.formatted} (${card.delta.comparisonPeriodLabel})` },
+          { label: 'KPI Target', value: card.targetFormatted },
+          { label: 'Achievement Status', value: card.isTargetAchieved ? '🟢 Achieved' : '🟡 Below Target' },
         ],
         rootCauseAnalysis:
           card.id === 'activation'
-            ? 'Aktivasi melambat di wilayah Jawa Barat akibat toko baru belum menyelesaikan verifikasi dokumen NIK/NIB.'
+            ? 'Activation velocity slowed in West Java due to new stores pending NIK/NIB document verification.'
             : card.id === 'retention'
-            ? 'Retensi bulan ke-2 pada toko kecil (Tier C) menurun karena kenaikan batas minimum order distributor.'
-            : 'Performa metrik on-track dengan laju pertumbuhan kuartal ini.',
+            ? 'Month-2 retention on small stores (Tier C) dipped following distributor minimum order quantity (MOQ) adjustments.'
+            : 'Metric performance is on-track with current quarterly growth targets.',
         actionCta: {
-          label: `Buka ${card.drillDownLabel}`,
+          label: `Open ${card.drillDownLabel}`,
           targetRoute: card.drillDownRoute,
         },
       };
@@ -119,12 +127,12 @@ export class ProductOverviewRepository implements IProductOverviewRepository {
     return {
       type: 'anomaly',
       title: anomaly.title,
-      subtitle: `Segmen Terdampak: ${anomaly.affectedSegment}`,
+      subtitle: `Affected Segment: ${anomaly.affectedSegment}`,
       summaryMetrics: [
         { label: 'Severity', value: anomaly.severity === 'critical' ? '🔴 Critical' : '🟡 Warning' },
-        { label: 'Estimasi Dampak', value: anomaly.estimatedLostGmvFormatted || 'Dalam Pengukuran' },
+        { label: 'Estimated GMV Impact', value: anomaly.estimatedLostGmvFormatted || 'Under Assessment' },
       ],
-      rootCauseAnalysis: `${anomaly.rootCause}\n\nRekomendasi Tindakan: ${anomaly.recommendedAction}`,
+      rootCauseAnalysis: `${anomaly.rootCause}\n\nRecommended Action: ${anomaly.recommendedAction}`,
       actionCta: {
         label: anomaly.actionCtaPrimary.label,
         targetRoute: anomaly.actionCtaPrimary.route,
